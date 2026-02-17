@@ -457,28 +457,29 @@ class StorageService {
   async exportSnapshot() {
     try {
       const tasks = this.db.getAllTasks();
-      const now = Date.now();
+      const now = new Date().toISOString();
+      const nowMs = Date.now();
       const deviceId = 'pc';
 
       const items = tasks.map(t => ({
         uid: String(t.id),
         ver: { ts: now, ctr: 0, dev: deviceId },
-        deleted: 0,
+        deleted: t.is_deleted === 1 || t.is_deleted === true,
         doc: {
           id: String(t.id),
           name: t.title,
-          start_time: t.createdAt ? new Date(t.createdAt).getTime() : now,
-          end_time: t.deadline ? new Date(t.deadline).getTime() : null,
+          start_time: t.created_at ? new Date(t.created_at).toISOString() : now,
+          end_time: t.deadline ? new Date(t.deadline).toISOString() : null,
           is_completed: t.completed ? 1 : 0,
-          complete_time: t.completed ? new Date(t.updatedAt).getTime() : null,
+          complete_time: t.completed ? (t.updated_at ? new Date(t.updated_at).toISOString() : now) : null,
           note: t.description || '',
-          is_archived: t.isArchived ? 1 : 0,
-          is_stared: t.isStarred ? 1 : 0,
+          is_archived: t.is_archived ? 1 : 0,
+          is_stared: t.is_starred ? 1 : 0,
           type: t.type === 'habit' ? 'habit' : 'task',
           habit_count: t.streak || 0,
-          habit_total_count: t.type === 'habit' ? 100 : 0,
+          habit_total_count: t.type === 'habit' ? (t.progress !== null ? Math.round(t.progress) || 0 : 0) : 0,
           calendar_event: null,
-          timestamp: t.updatedAt ? new Date(t.updatedAt).getTime() : now,
+          timestamp: t.updated_at ? new Date(t.updated_at).toISOString() : now,
         },
       }));
 

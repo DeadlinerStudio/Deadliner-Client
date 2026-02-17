@@ -98,13 +98,13 @@ const sharedThemeOptions: ThemeOptions = {
   },
 };
 
-// 主题调色板定义
+// 主题调色板定义 - 与手机端 Material Design 3 保持一致
 export const themePalettes = {
-  // 1. Material Design 3 (默认紫色)
+  // 1. Material Design 3 (默认紫色 - 与手机端一致)
   purple: {
     light: {
-      primary: { main: '#6750A4', light: '#7965AF', dark: '#4F3D8E', contrastText: '#FFFFFF' },
-      secondary: { main: '#625B71', light: '#7C75A0', dark: '#4A4458', contrastText: '#FFFFFF' },
+      primary: { main: '#6200EE', light: '#BB86FC', dark: '#3700B3', contrastText: '#FFFFFF' },
+      secondary: { main: '#03DAC6', light: '#66FFF9', dark: '#018786', contrastText: '#000000' },
       error: { main: '#B3261E', light: '#DC3630', dark: '#8C1D18', contrastText: '#FFFFFF' },
       warning: { main: '#F59E0B', light: '#FFA726', dark: '#FB8C00', contrastText: '#000000' },
       info: { main: '#2196F3', light: '#64B5F6', dark: '#1976D2', contrastText: '#FFFFFF' },

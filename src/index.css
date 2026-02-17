@@ -81,13 +81,13 @@ body {
 }
 
 .btn-primary {
-  background-color: #10b981;
+  background-color: #6200EE;
   color: white;
 }
 
 .btn-secondary {
-  background-color: #8b5cf6;
-  color: white;
+  background-color: #03DAC6;
+  color: #000000;
 }
 
 .btn-ghost {
@@ -138,8 +138,8 @@ body {
 
 .input:focus {
   outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: #6200EE;
+  box-shadow: 0 0 0 3px rgba(98, 0, 238, 0.1);
 }
 
 .select {
@@ -187,13 +187,13 @@ body {
 }
 
 .filter-btn.active {
-  background-color: #10b981 !important;
+  background-color: #6200EE !important;
   color: white !important;
-  border-color: #10b981 !important;
+  border-color: #6200EE !important;
 }
 
 /* Color classes */
-.text-primary { color: #10b981; }
+.text-primary { color: #6200EE; }
 .text-secondary { color: #8b5cf6; }
 .text-accent { color: #f56565; }
 .text-error { color: #ef4444; }
@@ -201,7 +201,7 @@ body {
 .text-success { color: #22c55e; }
 .text-info { color: #3b82f6; }
 
-.bg-primary { background-color: #10b981; color: white; }
+.bg-primary { background-color: #6200EE; color: white; }
 .bg-base-100 { background-color: white; }
 .bg-base-200 { background-color: #f8fafc; }
 .bg-base-300 { background-color: #e2e8f0; }
@@ -358,9 +358,9 @@ body {
 }
 
 .badge-primary {
-  background-color: #10b981;
+  background-color: #6200EE;
   color: white;
-  border-color: #10b981;
+  border-color: #6200EE;
 }
 
 /* Menu styling */
@@ -396,7 +396,7 @@ body {
 }
 
 .menu li button.active {
-  background-color: #10b981;
+  background-color: #6200EE;
   color: white;
 }
 
@@ -482,8 +482,8 @@ body {
 }
 
 .checkbox:checked {
-  background-color: #10b981;
-  border-color: #10b981;
+  background-color: #6200EE;
+  border-color: #6200EE;
   background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7.5 7.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6 10.293l7.146-7.147a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
 }
 
@@ -493,7 +493,7 @@ body {
 }
 
 .avatar.placeholder {
-  background-color: #10b981;
+  background-color: #6200EE;
   color: white;
   border-radius: 50%;
   align-items: center;
@@ -511,7 +511,7 @@ body {
 
 .progress-fill {
   height: 100%;
-  background-color: #10b981;
+  background-color: #6200EE;
   transition: width 0.3s ease;
 }
 
@@ -537,11 +537,11 @@ body {
 
 /* Ring utility for selection */
 .ring-2 {
-  box-shadow: 0 0 0 2px #10b981;
+  box-shadow: 0 0 0 2px #6200EE;
 }
 
 .ring-primary {
-  box-shadow: 0 0 0 2px #10b981;
+  box-shadow: 0 0 0 2px #6200EE;
 }
 
 /* Form labels */
@@ -590,7 +590,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #6200EE;
 }
 
 /* Responsive design */
