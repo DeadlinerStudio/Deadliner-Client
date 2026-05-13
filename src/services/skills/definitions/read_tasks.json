@@ -1,0 +1,28 @@
+{
+  "name": "read_tasks",
+  "description": "读取用户的任务列表，用于查询已有任务、检查重复或获取上下文",
+  "domain": "TaskAgent",
+  "capabilities": ["READ_TASK_CONTEXT"],
+  "supportedPlatforms": ["ios", "android", "harmony", "web"],
+  "requiresUiConfirmation": false,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "可选的查询条件，如任务名称关键词"
+      },
+      "limit": {
+        "type": "number",
+        "description": "返回的任务数量限制，默认 20",
+        "default": 20
+      },
+      "includeArchived": {
+        "type": "boolean",
+        "description": "是否包含已归档的任务，默认 false",
+        "default": false
+      }
+    },
+    "required": []
+  }
+}

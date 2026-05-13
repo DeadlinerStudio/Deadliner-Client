@@ -1,0 +1,23 @@
+{
+  "name": "update_deadline",
+  "description": "更新已有任务的截止时间",
+  "domain": "TaskAgent",
+  "capabilities": ["UPDATE_TASK_DEADLINE"],
+  "supportedPlatforms": ["ios", "android", "harmony", "web"],
+  "requiresUiConfirmation": true,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "taskId": {
+        "type": "string",
+        "description": "要更新的任务 ID"
+      },
+      "newDueTime": {
+        "type": "string",
+        "description": "新的截止时间，格式 YYYY-MM-DD HH:mm",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$"
+      }
+    },
+    "required": ["taskId", "newDueTime"]
+  }
+}

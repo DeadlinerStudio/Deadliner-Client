@@ -1,22 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
   Box,
-  Grid,
   Typography,
   IconButton,
-  Toolbar,
-  AppBar,
   Menu,
   MenuItem,
   Button,
-  TextField,
-  InputAdornment,
   Fab,
-  ToggleButtonGroup,
-  ToggleButton,
   Paper,
-  Card,
-  CardContent,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -138,189 +129,241 @@ export const TaskList: React.FC<TaskListProps> = ({ onAddTask, onEditTask }) => 
   }, [filteredAndSortedTasks]);
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* Top AppBar */}
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Toolbar sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              {state.currentView === 'archive' ? '存档中心' : '任务'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {state.currentView === 'archive'
-                ? `管理您的 ${taskStats.total} 个已存档项目`
-                : `跟踪您的进度，管理 ${taskStats.total} 个项目`
-              }
-            </Typography>
+    <Box sx={{ 
+      flex: 1, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%', 
+      bgcolor: 'background.default',
+      overflow: 'hidden',
+      transition: 'background-color 0.3s',
+      position: 'relative'
+    }}>
+      {/* Header */}
+      <Box sx={{ 
+        px: { xs: 2, md: 4 }, 
+        py: 3, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        zIndex: 10,
+        flexWrap: 'wrap',
+        gap: 2,
+        borderBottom: 1, 
+        borderColor: 'divider'
+      }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, color: 'text.primary' }}>
+            {state.currentView === 'archive' ? '存档中心' : '任务管理'}
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {state.currentView === 'archive'
+              ? `管理您的 ${taskStats.total} 个已存档项目`
+              : '追踪您的任务进度与截止时间'
+            }
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          {/* Search */}
+          <Box sx={{ position: 'relative' }}>
+            <Search 
+              size={16} 
+              style={{ 
+                position: 'absolute', 
+                left: 12, 
+                top: '50%', 
+                transform: 'translateY(-50%)', 
+                color: '#9ca3af' 
+              }} 
+            />
+            <Box
+              component="input"
+              placeholder="搜索任务..."
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              sx={{
+                pl: 4.5,
+                pr: 2,
+                py: 1,
+                bgcolor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 50,
+                fontSize: '0.875rem',
+                outline: 'none',
+                width: { xs: '100%', sm: 200, md: 250 },
+                color: 'text.primary',
+                transition: 'all 0.2s',
+                '&:focus': {
+                  borderColor: 'primary.main',
+                  boxShadow: theme => `0 0 0 2px ${theme.palette.primary.main}33`
+                }
+              }}
+            />
           </Box>
 
-          {/* Search */}
-          <TextField
-            placeholder="搜索任务..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={18} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ mr: 2, width: 250 }}
-          />
-
           {/* View Mode Toggle */}
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(_, newMode) => newMode && setViewMode(newMode)}
-            size="small"
-            sx={{ mr: 2 }}
-          >
-            <ToggleButton value="list">
-              <ListIcon size={18} />
-            </ToggleButton>
-            <ToggleButton value="grid">
-              <GridIcon size={18} />
-            </ToggleButton>
-          </ToggleButtonGroup>
+          <Box sx={{ 
+            display: 'flex', 
+            bgcolor: 'background.paper', 
+            border: '1px solid', 
+            borderColor: 'divider', 
+            borderRadius: 50, 
+            p: 0.5 
+          }}>
+            <IconButton 
+              size="small"
+              onClick={() => setViewMode('list')}
+              sx={{ 
+                p: 0.75, 
+                bgcolor: viewMode === 'list' ? 'action.selected' : 'transparent',
+                color: viewMode === 'list' ? 'text.primary' : 'text.secondary',
+                '&:hover': { bgcolor: viewMode === 'list' ? 'action.selected' : 'action.hover' }
+              }}
+            >
+              <ListIcon size={16} />
+            </IconButton>
+            <IconButton 
+              size="small"
+              onClick={() => setViewMode('grid')}
+              sx={{ 
+                p: 0.75, 
+                bgcolor: viewMode === 'grid' ? 'action.selected' : 'transparent',
+                color: viewMode === 'grid' ? 'text.primary' : 'text.secondary',
+                '&:hover': { bgcolor: viewMode === 'grid' ? 'action.selected' : 'action.hover' }
+              }}
+            >
+              <GridIcon size={16} />
+            </IconButton>
+          </Box>
 
           {/* Sort Button */}
           <Button
-            variant="outlined"
-            size="small"
-            startIcon={<SortByAlpha size={18} />}
             onClick={(e) => setSortAnchorEl(e.currentTarget)}
-            sx={{ mr: 2 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 50,
+              color: 'text.primary',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minWidth: 'auto',
+              '&:hover': {
+                bgcolor: 'action.hover',
+              }
+            }}
           >
+            <SortByAlpha size={16} />
             排序
           </Button>
           <Menu
             anchorEl={sortAnchorEl}
             open={Boolean(sortAnchorEl)}
             onClose={() => setSortAnchorEl(null)}
+            PaperProps={{
+              sx: { borderRadius: 2, mt: 1, boxShadow: 3 }
+            }}
           >
-            <MenuItem onClick={() => handleSortChange('deadline')}>截止时间</MenuItem>
-            <MenuItem onClick={() => handleSortChange('created')}>创建时间</MenuItem>
-            <MenuItem onClick={() => handleSortChange('updated')}>更新时间</MenuItem>
-            <MenuItem onClick={() => handleSortChange('priority')}>优先级</MenuItem>
+            <MenuItem onClick={() => handleSortChange('deadline')} selected={state.sortBy === 'deadline'}>截止时间</MenuItem>
+            <MenuItem onClick={() => handleSortChange('created')} selected={state.sortBy === 'created'}>创建时间</MenuItem>
+            <MenuItem onClick={() => handleSortChange('updated')} selected={state.sortBy === 'updated'}>更新时间</MenuItem>
+            <MenuItem onClick={() => handleSortChange('priority')} selected={state.sortBy === 'priority'}>优先级</MenuItem>
           </Menu>
 
-          {/* Multi-select Toggle */}
+          {/* Multi-select Button */}
           <Button
-            variant={state.isMultiSelectMode ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={<CheckSquare size={18} />}
             onClick={toggleMultiSelect}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1,
+              bgcolor: state.isMultiSelectMode ? 'primary.main' : 'background.paper',
+              border: '1px solid',
+              borderColor: state.isMultiSelectMode ? 'primary.main' : 'divider',
+              borderRadius: 50,
+              color: state.isMultiSelectMode ? 'primary.contrastText' : 'text.primary',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minWidth: 'auto',
+              '&:hover': {
+                bgcolor: state.isMultiSelectMode ? 'primary.dark' : 'action.hover',
+              }
+            }}
           >
+            <CheckSquare size={16} />
             多选
           </Button>
-        </Toolbar>
-      </AppBar>
-
-      {/* Stats Cards */}
-      <Box sx={{ px: { xs: 2, md: 4 }, py: 3, bgcolor: 'background.default' }}>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 4 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {taskStats.total}
-                </Typography>
-                <Typography variant="body2">
-                  总任务
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 4 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'success.main', color: 'success.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {taskStats.completed}
-                </Typography>
-                <Typography variant="body2">
-                  已完成
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 4 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'error.main', color: 'error.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {taskStats.overdue}
-                </Typography>
-                <Typography variant="body2">
-                  已逾期
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+        </Box>
       </Box>
-
-      {/* Filter Chips - Removed since we only show tasks now */}
 
       {/* Multi-select Toolbar */}
       {state.isMultiSelectMode && state.selectedTasks.size > 0 && (
-        <Paper
-          elevation={3}
-          sx={{
-            mx: { xs: 2, md: 4 },
-            mb: 2,
-            p: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-          }}
-        >
-          <Typography variant="body1" sx={{ flex: 1, fontWeight: 600 }}>
-            已选中 {state.selectedTasks.size} 个项目
-          </Typography>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<CheckSquare size={18} />}
-            onClick={handleBatchComplete}
-            sx={{ bgcolor: 'success.main', '&:hover': { bgcolor: 'success.dark' } }}
+        <Box sx={{ px: { xs: 2, md: 4 }, pt: 3, pb: 0, zIndex: 10 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 1.5,
+              px: 3,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              borderRadius: 50,
+              boxShadow: 3
+            }}
           >
-            完成
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Archive size={18} />}
-            onClick={handleBatchArchive}
-            sx={{ bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
-          >
-            归档
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Trash2 size={18} />}
-            onClick={handleBatchDelete}
-            sx={{ bgcolor: 'error.main', '&:hover': { bgcolor: 'error.dark' } }}
-          >
-            删除
-          </Button>
-          <IconButton
-            size="small"
-            onClick={toggleMultiSelect}
-            sx={{ color: 'inherit' }}
-          >
-            <X size={18} />
-          </IconButton>
-        </Paper>
+            <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+              已选中 {state.selectedTasks.size} 个项目
+            </Typography>
+            <Button
+              size="small"
+              startIcon={<CheckSquare size={16} />}
+              onClick={handleBatchComplete}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              完成
+            </Button>
+            <Button
+              size="small"
+              startIcon={<Archive size={16} />}
+              onClick={handleBatchArchive}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              归档
+            </Button>
+            <Button
+              size="small"
+              startIcon={<Trash2 size={16} />}
+              onClick={handleBatchDelete}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              删除
+            </Button>
+            <IconButton
+              size="small"
+              onClick={toggleMultiSelect}
+              sx={{ color: 'inherit', ml: 1 }}
+            >
+              <X size={18} />
+            </IconButton>
+          </Paper>
+        </Box>
       )}
 
       {/* Task List/Grid */}
-      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, pb: 4 }}>
+      <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 4 }, py: 3, pb: 12, zIndex: 0 }}>
         {filteredAndSortedTasks.length === 0 ? (
           <Box
             sx={{
@@ -340,21 +383,17 @@ export const TaskList: React.FC<TaskListProps> = ({ onAddTask, onEditTask }) => 
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={viewMode === 'grid' ? 3 : 2}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: viewMode === 'grid' ? { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(2, 1fr)', xl: 'repeat(2, 1fr)' } : '1fr',
+            gap: 3 
+          }}>
             {filteredAndSortedTasks.map((task) => (
-              <Grid
-                key={task.id}
-                size={{
-                  xs: 12,
-                  sm: viewMode === 'grid' ? 6 : 12,
-                  md: viewMode === 'grid' ? 4 : 12,
-                  lg: viewMode === 'grid' ? 3 : 12,
-                }}
-              >
+              <Box key={task.id}>
                 <TaskItem task={task} viewMode={viewMode} onEdit={onEditTask} />
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         )}
       </Box>
 
@@ -363,31 +402,37 @@ export const TaskList: React.FC<TaskListProps> = ({ onAddTask, onEditTask }) => 
         color="primary"
         onClick={onAddTask}
         sx={{
-          position: 'fixed',
+          position: 'absolute',
           bottom: 32,
           right: 32,
-          width: 64,
-          height: 64,
-          boxShadow: 6,
+          width: 56,
+          height: 56,
+          boxShadow: theme => `0 10px 15px -3px ${theme.palette.primary.main}4D`,
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
           '&:hover': {
-            boxShadow: 12,
+            bgcolor: 'primary.dark',
+            transform: 'scale(1.05)',
+            boxShadow: theme => `0 20px 25px -5px ${theme.palette.primary.main}66`,
           },
+          transition: 'all 0.2s ease-in-out',
+          zIndex: 50
         }}
       >
-        <AddRoundedIcon sx={{ fontSize: 32 }} />
+        <AddRoundedIcon sx={{ fontSize: 28 }} />
       </Fab>
 
       {/* Batch Delete Confirmation Dialog */}
-      <Dialog open={batchDeleteDialogOpen} onClose={() => setBatchDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>确认批量删除</DialogTitle>
+      <Dialog open={batchDeleteDialogOpen} onClose={() => setBatchDeleteDialogOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 600 }}>确认批量删除</DialogTitle>
         <DialogContent>
           <Typography>
             确定要删除选中的 {state.selectedTasks.size} 个任务吗？此操作无法撤销。
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setBatchDeleteDialogOpen(false)}>取消</Button>
-          <Button onClick={confirmBatchDelete} color="error" variant="contained">
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button onClick={() => setBatchDeleteDialogOpen(false)} sx={{ borderRadius: 50, px: 3, color: 'text.secondary' }}>取消</Button>
+          <Button onClick={confirmBatchDelete} color="error" variant="contained" disableElevation sx={{ borderRadius: 50, px: 3 }}>
             删除
           </Button>
         </DialogActions>

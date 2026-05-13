@@ -1,0 +1,28 @@
+{
+  "name": "read_habits",
+  "description": "读取用户的习惯列表，用于查询已有习惯或获取上下文",
+  "domain": "HabitAgent",
+  "capabilities": ["READ_HABIT_CONTEXT"],
+  "supportedPlatforms": ["ios", "android", "harmony", "web"],
+  "requiresUiConfirmation": false,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "可选的查询条件，如习惯名称关键词"
+      },
+      "limit": {
+        "type": "number",
+        "description": "返回的习惯数量限制，默认 20",
+        "default": 20
+      },
+      "includeArchived": {
+        "type": "boolean",
+        "description": "是否包含已归档的习惯，默认 false",
+        "default": false
+      }
+    },
+    "required": []
+  }
+}

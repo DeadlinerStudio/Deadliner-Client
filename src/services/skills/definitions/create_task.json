@@ -1,0 +1,43 @@
+{
+  "name": "create_task",
+  "description": "创建新任务，需要用户提供任务名称、截止时间等信息",
+  "domain": "TaskAgent",
+  "capabilities": ["CREATE_TASK"],
+  "supportedPlatforms": ["ios", "android", "harmony", "web"],
+  "requiresUiConfirmation": true,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "任务名称（≤30字符）"
+      },
+      "description": {
+        "type": "string",
+        "description": "任务详细描述，包含执行步骤"
+      },
+      "deadline": {
+        "type": "string",
+        "description": "截止时间，格式 YYYY-MM-DD HH:mm",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$"
+      },
+      "priority": {
+        "type": "string",
+        "description": "优先级",
+        "enum": ["high", "medium", "low"]
+      },
+      "category": {
+        "type": "string",
+        "description": "任务分类，默认 'uncategorized'"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "任务标签"
+      }
+    },
+    "required": ["title"]
+  }
+}

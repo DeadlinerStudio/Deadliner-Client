@@ -12,11 +12,8 @@ import {
 } from '@mui/material';
 import {
   Clock,
-  TrendingUp,
   AlertCircle,
   Calendar,
-  CheckCircle,
-  Target,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { differenceInDays, differenceInHours, differenceInMinutes, format } from 'date-fns';
@@ -134,53 +131,85 @@ export const OverviewPage: React.FC = () => {
         {/* Stats Cards */}
         <Grid container spacing={2} sx={{ mb: 4 }}>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-              <CardContent>
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <Target size={20} />
-                  <Typography variant="body2">进行中</Typography>
-                </Stack>
-                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
                   {stats.active}
                 </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  进行中
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ bgcolor: 'success.main', color: 'success.contrastText' }}>
-              <CardContent>
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <CheckCircle size={20} />
-                  <Typography variant="body2">已完成</Typography>
-                </Stack>
-                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
                   {stats.completed}
                 </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ bgcolor: 'error.main', color: 'error.contrastText' }}>
-              <CardContent>
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <AlertCircle size={20} />
-                  <Typography variant="body2">已逾期</Typography>
-                </Stack>
-                <Typography variant="h3" sx={{ fontWeight: 700 }}>
-                  {stats.overdue}
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  已完成
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ bgcolor: 'info.main', color: 'info.contrastText' }}>
-              <CardContent>
-                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                  <TrendingUp size={20} />
-                  <Typography variant="body2">完成率</Typography>
-                </Stack>
-                <Typography variant="h3" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'error.main' }}>
+                  {stats.overdue}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  已逾期
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 6, sm: 3 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'info.main' }}>
                   {stats.completionRate}%
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  完成率
                 </Typography>
               </CardContent>
             </Card>
@@ -208,7 +237,7 @@ export const OverviewPage: React.FC = () => {
         {overdueTasks.length > 0 && (
           <Paper elevation={0} sx={{ p: 3, mb: 4, bgcolor: 'error.light', border: 2, borderColor: 'error.main' }}>
             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-              <AlertCircle size={24} color="error" />
+              <AlertCircle size={24} color="#ef4444" />
               <Typography variant="h6" sx={{ fontWeight: 600, color: 'error.dark' }}>
                 ⚠️ 已逾期任务 ({overdueTasks.length})
               </Typography>

@@ -5,21 +5,11 @@ import {
   Typography,
   Card,
   CardContent,
-  CardActions,
-  Chip,
   IconButton,
   Button,
-  Stack,
   Menu,
   MenuItem,
   Fab,
-  Tooltip,
-  AppBar,
-  Toolbar,
-  TextField,
-  InputAdornment,
-  ToggleButtonGroup,
-  ToggleButton,
   Paper,
   Checkbox,
   Dialog,
@@ -30,7 +20,6 @@ import {
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import {
   Target,
-  Star,
   MoreVertical,
   CheckCircle,
   Archive,
@@ -45,8 +34,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Task } from '../types';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
 
 // 习惯页面属性接口
 interface HabitsPageProps {
@@ -244,187 +231,327 @@ export const HabitsPage: React.FC<HabitsPageProps> = ({ onAddHabit, onEditHabit 
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      {/* Header with Search */}
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Toolbar sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              习惯追踪
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              培养良好习惯，坚持每一天
-            </Typography>
+    <Box sx={{ 
+      flex: 1, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%', 
+      bgcolor: 'background.default',
+      overflow: 'hidden',
+      transition: 'background-color 0.3s',
+      position: 'relative'
+    }}>
+      {/* Header */}
+      <Box sx={{ 
+        px: { xs: 2, md: 4 }, 
+        py: 3, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        zIndex: 10,
+        flexWrap: 'wrap',
+        gap: 2,
+        borderBottom: 1, 
+        borderColor: 'divider'
+      }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5, color: 'text.primary' }}>
+            习惯追踪
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            培养良好习惯，坚持每一天
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          {/* Search */}
+          <Box sx={{ position: 'relative' }}>
+            <Search 
+              size={16} 
+              style={{ 
+                position: 'absolute', 
+                left: 12, 
+                top: '50%', 
+                transform: 'translateY(-50%)', 
+                color: '#9ca3af' 
+              }} 
+            />
+            <Box
+              component="input"
+              placeholder="搜索习惯..."
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+              sx={{
+                pl: 4.5,
+                pr: 2,
+                py: 1,
+                bgcolor: 'background.paper',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 50,
+                fontSize: '0.875rem',
+                outline: 'none',
+                width: { xs: '100%', sm: 200, md: 250 },
+                color: 'text.primary',
+                transition: 'all 0.2s',
+                '&:focus': {
+                  borderColor: 'primary.main',
+                  boxShadow: theme => `0 0 0 2px ${theme.palette.primary.main}33`
+                }
+              }}
+            />
           </Box>
 
-          {/* Search */}
-          <TextField
-            placeholder="搜索习惯..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search size={18} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ mr: 2, width: 250 }}
-          />
-
           {/* View Mode Toggle */}
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(_, newMode) => newMode && setViewMode(newMode)}
-            size="small"
-            sx={{ mr: 2 }}
-          >
-            <ToggleButton value="list">
-              <ListIcon size={18} />
-            </ToggleButton>
-            <ToggleButton value="grid">
-              <GridIcon size={18} />
-            </ToggleButton>
-          </ToggleButtonGroup>
+          <Box sx={{ 
+            display: 'flex', 
+            bgcolor: 'background.paper', 
+            border: '1px solid', 
+            borderColor: 'divider', 
+            borderRadius: 50, 
+            p: 0.5 
+          }}>
+            <IconButton 
+              size="small"
+              onClick={() => setViewMode('list')}
+              sx={{ 
+                p: 0.75, 
+                bgcolor: viewMode === 'list' ? 'action.selected' : 'transparent',
+                color: viewMode === 'list' ? 'text.primary' : 'text.secondary',
+                '&:hover': { bgcolor: viewMode === 'list' ? 'action.selected' : 'action.hover' }
+              }}
+            >
+              <ListIcon size={16} />
+            </IconButton>
+            <IconButton 
+              size="small"
+              onClick={() => setViewMode('grid')}
+              sx={{ 
+                p: 0.75, 
+                bgcolor: viewMode === 'grid' ? 'action.selected' : 'transparent',
+                color: viewMode === 'grid' ? 'text.primary' : 'text.secondary',
+                '&:hover': { bgcolor: viewMode === 'grid' ? 'action.selected' : 'action.hover' }
+              }}
+            >
+              <GridIcon size={16} />
+            </IconButton>
+          </Box>
 
           {/* Sort Button */}
           <Button
-            variant="outlined"
-            size="small"
-            startIcon={<SortByAlpha size={18} />}
             onClick={(e) => setSortAnchorEl(e.currentTarget)}
-            sx={{ mr: 2 }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1,
+              bgcolor: 'background.paper',
+              border: '1px solid',
+              borderColor: 'divider',
+              borderRadius: 50,
+              color: 'text.primary',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minWidth: 'auto',
+              '&:hover': {
+                bgcolor: 'action.hover',
+              }
+            }}
           >
+            <SortByAlpha size={16} />
             排序
           </Button>
           <Menu
             anchorEl={sortAnchorEl}
             open={Boolean(sortAnchorEl)}
             onClose={() => setSortAnchorEl(null)}
+            PaperProps={{
+              sx: { borderRadius: 2, mt: 1, boxShadow: 3 }
+            }}
           >
-            <MenuItem onClick={() => handleSortChange('created')}>创建时间</MenuItem>
-            <MenuItem onClick={() => handleSortChange('updated')}>更新时间</MenuItem>
-            <MenuItem onClick={() => handleSortChange('priority')}>优先级</MenuItem>
+            <MenuItem onClick={() => handleSortChange('created')} selected={sortBy === 'created'}>创建时间</MenuItem>
+            <MenuItem onClick={() => handleSortChange('updated')} selected={sortBy === 'updated'}>更新时间</MenuItem>
+            <MenuItem onClick={() => handleSortChange('priority')} selected={sortBy === 'priority'}>优先级</MenuItem>
           </Menu>
 
-          {/* Multi-select Toggle */}
+          {/* Multi-select Button */}
           <Button
-            variant={state.isMultiSelectMode ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={<CheckSquare size={18} />}
             onClick={toggleMultiSelect}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              px: 2,
+              py: 1,
+              bgcolor: state.isMultiSelectMode ? 'primary.main' : 'background.paper',
+              border: '1px solid',
+              borderColor: state.isMultiSelectMode ? 'primary.main' : 'divider',
+              borderRadius: 50,
+              color: state.isMultiSelectMode ? 'primary.contrastText' : 'text.primary',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minWidth: 'auto',
+              '&:hover': {
+                bgcolor: state.isMultiSelectMode ? 'primary.dark' : 'action.hover',
+              }
+            }}
           >
+            <CheckSquare size={16} />
             多选
           </Button>
-        </Toolbar>
-      </AppBar>
+        </Box>
+      </Box>
+
+      {/* Multi-select Toolbar */}
+      {state.isMultiSelectMode && state.selectedTasks.size > 0 && (
+        <Box sx={{ px: { xs: 2, md: 4 }, pt: 3, pb: 0, zIndex: 10 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 1.5,
+              px: 3,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              borderRadius: 50,
+              boxShadow: 3
+            }}
+          >
+            <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+              已选中 {state.selectedTasks.size} 个习惯
+            </Typography>
+            <Button
+              size="small"
+              startIcon={<CheckSquare size={16} />}
+              onClick={handleBatchComplete}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              完成
+            </Button>
+            <Button
+              size="small"
+              startIcon={<Archive size={16} />}
+              onClick={handleBatchArchive}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              归档
+            </Button>
+            <Button
+              size="small"
+              startIcon={<Trash2 size={16} />}
+              onClick={handleBatchDelete}
+              sx={{ color: 'inherit', bgcolor: 'rgba(255,255,255,0.1)', borderRadius: 50, px: 2, '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}
+            >
+              删除
+            </Button>
+            <IconButton
+              size="small"
+              onClick={toggleMultiSelect}
+              sx={{ color: 'inherit', ml: 1 }}
+            >
+              <X size={18} />
+            </IconButton>
+          </Paper>
+        </Box>
+      )}
 
       {/* Stats Cards */}
-      <Box sx={{ px: { xs: 2, md: 4 }, py: 3, bgcolor: 'background.default' }}>
+      <Box sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          <Grid size={{ xs: 3 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
                   {stats.total}
                 </Typography>
-                <Typography variant="body2">总习惯</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  全部
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'success.main', color: 'success.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          <Grid size={{ xs: 3 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
+                  {stats.active}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  进行中
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid size={{ xs: 3 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'info.main' }}>
                   {stats.completed}
                 </Typography>
-                <Typography variant="body2">已完成</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'info.main', color: 'info.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                  {stats.avgProgress}%
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  已完成
                 </Typography>
-                <Typography variant="body2">平均进度</Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid size={{ xs: 6, md: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'warning.main', color: 'warning.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          <Grid size={{ xs: 3 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(249,115,22,0.15)' : 'rgba(249,115,22,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(249,115,22,0.3)' : 'rgba(249,115,22,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'warning.main' }}>
                   {stats.totalStreak}
                 </Typography>
-                <Typography variant="body2">总连续天数</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  连续天数
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
       </Box>
 
-      {/* Multi-select Toolbar */}
-      {state.isMultiSelectMode && state.selectedTasks.size > 0 && (
-        <Paper
-          elevation={3}
-          sx={{
-            mx: { xs: 2, md: 4 },
-            mb: 2,
-            p: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
-          }}
-        >
-          <Typography variant="body1" sx={{ flex: 1, fontWeight: 600 }}>
-            已选中 {state.selectedTasks.size} 个习惯
-          </Typography>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<CheckSquare size={18} />}
-            onClick={handleBatchComplete}
-            sx={{ bgcolor: 'success.main', '&:hover': { bgcolor: 'success.dark' } }}
-          >
-            完成
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Archive size={18} />}
-            onClick={handleBatchArchive}
-            sx={{ bgcolor: 'warning.main', '&:hover': { bgcolor: 'warning.dark' } }}
-          >
-            归档
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<Trash2 size={18} />}
-            onClick={handleBatchDelete}
-            sx={{ bgcolor: 'error.main', '&:hover': { bgcolor: 'error.dark' } }}
-          >
-            删除
-          </Button>
-          <IconButton
-            size="small"
-            onClick={toggleMultiSelect}
-            sx={{ color: 'inherit' }}
-          >
-            <X size={18} />
-          </IconButton>
-        </Paper>
-      )}
-
       {/* Habits Grid */}
-      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, pb: 4 }}>
+      <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 2, md: 4 }, py: 3, pb: 12, zIndex: 0 }}>
         {habits.length === 0 ? (
           <Box
             sx={{
@@ -434,148 +561,289 @@ export const HabitsPage: React.FC<HabitsPageProps> = ({ onAddHabit, onEditHabit 
               justifyContent: 'center',
               height: '100%',
               textAlign: 'center',
+              py: 8,
             }}
           >
-            <Typography variant="h4" sx={{ mb: 2 }}>
-              🎯
+            {/* Empty State Illustration */}
+            <Box
+              sx={{
+                width: 200,
+                height: 200,
+                mb: 4,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {/* Main target */}
+              <Box
+                sx={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: '50%',
+                  border: 4,
+                  borderStyle: 'dashed',
+                  borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.4)' : 'rgba(168,85,247,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: '50%',
+                    border: 3,
+                    borderStyle: 'dashed',
+                    borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.6)' : 'rgba(168,85,247,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography sx={{ fontSize: '1.5rem' }}>🎯</Typography>
+                </Box>
+              </Box>
+              {/* Decorative elements */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 30,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 2,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transform: 'rotate(15deg)',
+                }}
+              >
+                <Typography sx={{ fontSize: '1.2rem' }}>✓</Typography>
+              </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 20,
+                  left: 15,
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(249,115,22,0.2)' : 'rgba(249,115,22,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transform: 'rotate(-10deg)',
+                }}
+              >
+                <Typography sx={{ fontSize: '1rem' }}>🔥</Typography>
+              </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 30,
+                  left: 20,
+                  width: 24,
+                  height: 24,
+                  borderRadius: 1,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.2)' : 'rgba(59,130,246,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography sx={{ fontSize: '0.8rem' }}>⭐</Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
+              开始培养你的第一个习惯
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-              还没有习惯
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              创建您的第一个习惯，开始坚持每一天
+            <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 300 }}>
+              点击右下角的 + 按钮，创建你的第一个习惯
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={viewMode === 'grid' ? 3 : 2}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: viewMode === 'grid' ? { xs: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(2, 1fr)', xl: 'repeat(2, 1fr)' } : '1fr',
+            gap: 3 
+          }}>
             {habits.map((habit) => {
               const isSelected = state.selectedTasks.has(habit.id);
+              
+              // 动态获取颜色，这里为了简化，可以使用习惯的主题色或随机分配颜色
+              // 在此示例中，我们根据习惯ID的某些属性生成不同的背景色以保持视觉丰富性
+              const colorSchemes = [
+                { bg: 'status-orange-light', fill: 'status-orange-fill', hoverText: 'amber' },
+                { bg: 'status-blue-light', fill: 'status-blue-fill', hoverText: 'blue' },
+                { bg: 'status-purple-light', fill: 'status-purple-fill', hoverText: 'purple' },
+              ];
+              const schemeIndex = habit.id.length % colorSchemes.length;
+              const scheme = colorSchemes[schemeIndex];
+
               return (
-                <Grid
+                <Box
                   key={habit.id}
-                  size={{
-                    xs: 12,
-                    sm: viewMode === 'grid' ? 6 : 12,
-                    md: viewMode === 'grid' ? 4 : 12,
-                    lg: viewMode === 'grid' ? 3 : 12,
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    borderRadius: '24px',
+                    bgcolor: (theme) => {
+                      if (habit.completed) return theme.palette.mode === 'dark' ? '#164A29' : '#DCFCE7';
+                      if (scheme.bg === 'status-orange-light') return theme.palette.mode === 'dark' ? '#432C1B' : '#FFEDD5';
+                      if (scheme.bg === 'status-blue-light') return theme.palette.mode === 'dark' ? '#1E3A5F' : '#DBEAFE';
+                      return theme.palette.mode === 'dark' ? '#3B1E54' : '#F3E8FF';
+                    },
+                    boxShadow: isSelected ? 3 : 1,
+                    transition: 'all 0.3s ease',
+                    height: viewMode === 'grid' ? 112 : 'auto',
+                    minHeight: viewMode === 'list' ? 88 : 112,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      boxShadow: 3,
+                      '& .habit-title': {
+                        color: (theme) => {
+                          if (habit.completed) return theme.palette.mode === 'dark' ? '#A7F3D0' : '#065F46';
+                          if (scheme.hoverText === 'amber') return theme.palette.mode === 'dark' ? '#FDE68A' : '#78350F';
+                          if (scheme.hoverText === 'blue') return theme.palette.mode === 'dark' ? '#BFDBFE' : '#1E3A8A';
+                          return theme.palette.mode === 'dark' ? '#E9D5FF' : '#581C87';
+                        }
+                      }
+                    },
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  onClick={(e) => {
+                    if (state.isMultiSelectMode) {
+                      handleSelect(habit.id);
+                    } else {
+                      handleMenuOpen(e, habit);
+                    }
                   }}
                 >
-                  <Card
-                    elevation={isSelected ? 8 : (habit.completed ? 0 : 2)}
+                  {/* Progress Fill */}
+                  <Box
                     sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      opacity: habit.completed ? 0.7 : 1,
-                      transition: 'all 0.3s ease',
-                      bgcolor: isSelected ? 'action.selected' : 'background.paper',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: 4,
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      bottom: 0,
+                      bgcolor: (theme) => {
+                        if (habit.completed) return theme.palette.mode === 'dark' ? 'rgba(110, 231, 183, 0.8)' : 'rgba(110, 231, 183, 1)';
+                        if (scheme.fill === 'status-orange-fill') return theme.palette.mode === 'dark' ? 'rgba(253, 186, 116, 0.2)' : 'rgba(253, 186, 116, 0.3)';
+                        if (scheme.fill === 'status-blue-fill') return theme.palette.mode === 'dark' ? 'rgba(96, 165, 250, 0.3)' : 'rgba(96, 165, 250, 0.4)';
+                        return theme.palette.mode === 'dark' ? 'rgba(192, 132, 252, 0.3)' : 'rgba(192, 132, 252, 0.4)';
                       },
+                      width: habit.completed ? '100%' : `${habit.progress || 0}%`,
+                      transition: 'width 0.5s ease-in-out',
+                      zIndex: 0
                     }}
-                  >
-                    <CardContent sx={{ flex: 1 }}>
-                      {/* Header */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        {state.isMultiSelectMode && (
-                          <Checkbox
-                            size="small"
-                            checked={isSelected}
-                            onChange={() => handleSelect(habit.id)}
-                            sx={{ mr: 1, p: 0 }}
-                          />
-                        )}
+                  />
 
-                        <Box sx={{ flex: 1 }} />
-                        <Tooltip title={habit.isStarred ? '取消标星' : '标星'}>
-                          <IconButton
-                            size="small"
-                            onClick={() => handleToggleStar(habit.id)}
-                            sx={{ color: habit.isStarred ? 'warning.main' : 'action.disabled', p: 0.5 }}
-                          >
-                            <Star size={18} fill={habit.isStarred ? 'currentColor' : 'none'} />
-                          </IconButton>
-                        </Tooltip>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => handleMenuOpen(e, habit)}
-                          sx={{ p: 0.5 }}
-                        >
-                          <MoreVertical size={18} />
-                        </IconButton>
-                      </Box>
-
-                      {/* Title */}
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          mb: 1,
-                          fontWeight: 600,
-                          textDecoration: habit.completed ? 'line-through' : 'none',
-                        }}
-                      >
-                        {habit.title}
-                      </Typography>
-
-                      {/* Description */}
-                      {habit.description && (
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
+                  <Box sx={{ position: 'relative', height: '100%', p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+                    {/* Left Side */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', maxWidth: '70%', flex: 1, gap: 2 }}>
+                      {state.isMultiSelectMode && (
+                        <Checkbox
+                          size="medium"
+                          checked={isSelected}
+                          onChange={() => handleSelect(habit.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          sx={{ p: 0, color: 'text.secondary', '&.Mui-checked': { color: 'primary.main' } }}
+                        />
+                      )}
+                      {!state.isMultiSelectMode && (
+                        <Checkbox
+                          checked={habit.completed}
+                          onChange={() => handleToggleComplete(habit.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          icon={<CheckCircle size={22} />}
+                          checkedIcon={<CheckCircle size={22} />}
                           sx={{
-                            mb: 2,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
+                            p: 0,
+                            color: 'text.secondary',
+                            opacity: 0.7,
+                            '&.Mui-checked': { color: 'success.main', opacity: 1 },
+                            '&:hover': { opacity: 1 }
+                          }}
+                        />
+                      )}
+
+                      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+                        <Typography
+                          className="habit-title"
+                          variant="h6"
+                          sx={{
+                            fontSize: '1.25rem',
+                            fontWeight: 700,
+                            color: habit.completed ? 'text.secondary' : 'text.primary',
+                            textDecoration: habit.completed ? 'line-through' : 'none',
+                            whiteSpace: 'nowrap',
                             overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            mb: 0.5,
+                            transition: 'color 0.2s ease',
                           }}
                         >
-                          {habit.description}
+                          {habit.title}
                         </Typography>
-                      )}
-
-                      {/* Streak */}
-                      {habit.streak && habit.streak > 0 && (
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-                          <Flame size={16} color="#ff9800" />
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: 'warning.main' }}>
-                            连续打卡 {habit.streak} 天
-                          </Typography>
-                        </Stack>
-                      )}
-
-                      {/* Priority & Time */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Chip
-                          label={habit.priority === 'high' ? '高' : habit.priority === 'medium' ? '中' : '低'}
-                          size="small"
-                          color={getPriorityColor(habit.priority) as any}
-                          sx={{ fontSize: '0.7rem', height: 20 }}
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          {formatDistanceToNow(new Date(habit.createdAt), { addSuffix: true, locale: zhCN })}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {habit.streak && habit.streak > 0 ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'warning.main' }}>
+                              <Flame size={14} />
+                              <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                                连续打卡 {habit.streak} 天
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontSize: '0.875rem',
+                                color: 'text.secondary',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {habit.description || '添加描述...'}
+                            </Typography>
+                          )}
+                        </Box>
                       </Box>
-                    </CardContent>
+                    </Box>
 
-                    {/* Actions */}
-                    <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-                      <Button
-                        fullWidth
-                        variant={habit.completed ? 'outlined' : 'contained'}
-                        color={habit.completed ? 'success' : 'primary'}
-                        startIcon={<CheckCircle size={18} />}
-                        onClick={() => handleToggleComplete(habit.id)}
+                    {/* Right Side */}
+                    <Box sx={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Typography
+                        sx={{
+                          fontSize: '1.125rem',
+                          fontWeight: 700,
+                          color: habit.completed ? (theme => theme.palette.mode === 'dark' ? 'white' : 'text.primary') : 'text.primary',
+                          whiteSpace: 'nowrap',
+                          display: { xs: 'none', sm: 'block' }
+                        }}
                       >
-                        {habit.completed ? '已完成' : '标记完成'}
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
+                        {habit.completed ? '已打卡' : `${habit.progress || 0}%`}
+                      </Typography>
+
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMenuOpen(e, habit)}
+                        sx={{ p: 0.5, color: 'text.secondary', opacity: 0.6, '&:hover': { opacity: 1, bgcolor: 'rgba(0,0,0,0.05)' } }}
+                      >
+                        <MoreVertical size={20} />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Box>
               );
             })}
-          </Grid>
+          </Box>
         )}
       </Box>
 
@@ -584,18 +852,24 @@ export const HabitsPage: React.FC<HabitsPageProps> = ({ onAddHabit, onEditHabit 
         color="primary"
         onClick={onAddHabit}
         sx={{
-          position: 'fixed',
+          position: 'absolute',
           bottom: 32,
           right: 32,
-          width: 64,
-          height: 64,
-          boxShadow: 6,
+          width: 56,
+          height: 56,
+          boxShadow: theme => `0 10px 15px -3px ${theme.palette.primary.main}4D`,
+          bgcolor: 'primary.main',
+          color: 'primary.contrastText',
           '&:hover': {
-            boxShadow: 12,
+            bgcolor: 'primary.dark',
+            transform: 'scale(1.05)',
+            boxShadow: theme => `0 20px 25px -5px ${theme.palette.primary.main}66`,
           },
+          transition: 'all 0.2s ease-in-out',
+          zIndex: 50
         }}
       >
-        <AddRoundedIcon sx={{ fontSize: 32 }} />
+        <AddRoundedIcon sx={{ fontSize: 28 }} />
       </Fab>
 
       {/* Menu */}

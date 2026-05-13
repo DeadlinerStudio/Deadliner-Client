@@ -15,8 +15,24 @@ import {
   Button,
   Switch,
   FormControlLabel,
+  IconButton,
 } from '@mui/material';
-import { Palette } from 'lucide-react';
+import {
+  Palette,
+  Sun,
+  Moon,
+  Cloud,
+  CloudOff,
+  RefreshCw,
+  Upload,
+  Download,
+  Check,
+  X,
+  Info,
+  Github,
+  Heart,
+  Zap,
+} from 'lucide-react';
 import { themeMetadata, themePalettes } from '../theme/themes';
 import { useSettings } from '../hooks/useStorage';
 import { useApp } from '../context/AppContext';
@@ -27,40 +43,30 @@ type ThemeColorKey = keyof typeof themePalettes;
 
 // 设置页面属性接口
 interface SettingsPageProps {
-  darkMode: boolean; // 深色模式
-  onThemeToggle: () => void; // 主题切换回调
-  themeColor: ThemeColorKey; // 主题颜色
-  onThemeColorChange: (color: ThemeColorKey) => void; // 主题颜色变化回调
+  darkMode: boolean;
+  onThemeToggle: () => void;
+  themeColor: ThemeColorKey;
+  onThemeColorChange: (color: ThemeColorKey) => void;
 }
 
 // 设置页面组件
 export const SettingsPage: React.FC<SettingsPageProps> = ({
-  darkMode, // 深色模式状态
-  onThemeToggle, // 主题切换
-  themeColor, // 当前主题颜色
-  onThemeColorChange, // 主题颜色变化
+  darkMode,
+  onThemeToggle,
+  themeColor,
+  onThemeColorChange,
 }) => {
-
-  // 同步设置钩子
   const { settings: syncSettings, updateSettings: updateSyncSettings, reload: reloadSync } = useSettings<SyncSettings>('sync');
-  // 应用上下文
   const { dispatch } = useApp();
-  // WebDAV URL
   const [webdavUrl, setWebdavUrl] = useState('');
-  // WebDAV 用户名
   const [webdavUsername, setWebdavUsername] = useState('');
-  // WebDAV 密码
   const [webdavPassword, setWebdavPassword] = useState('');
-  // 同步启用状态
   const [syncEnabled, setSyncEnabled] = useState(false);
-  // 自动同步
   const [autoSync, setAutoSync] = useState(false);
-  // 测试状态
   const [testing, setTesting] = useState(false);
-  // 测试结果
-  const [testResult, setTestResult] = useState<string | null>(null);
-  // 操作消息
+  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (syncSettings) {
@@ -73,69 +79,59 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
     }
   }, [syncSettings]);
 
-  // 保存 WebDAV 设置
   const saveWebdavSettings = async () => {
     await updateSyncSettings({
       provider: 'webdav',
       enabled: syncEnabled,
       autoSync,
-      webdav: {
-        url: webdavUrl,
-        username: webdavUsername,
-        password: webdavPassword,
-      },
+      webdav: { url: webdavUrl, username: webdavUsername, password: webdavPassword },
     });
     await reloadSync();
-    setActionMsg('已保存 WebDAV 设置');
+    setActionMsg('设置已保存');
+    setTimeout(() => setActionMsg(null), 3000);
   };
 
-  // 测试连接
   const testConnection = async () => {
     try {
       setTesting(true);
       setTestResult(null);
       const res = await window.electron.storage.webdavTestConnection();
-      if (res.success) {
-        setTestResult('连接成功');
-      } else {
-        setTestResult('连接失败');
-      }
-    } catch (err) {
-      setTestResult('连接失败');
+      setTestResult(res.success ? 'success' : 'error');
+    } catch {
+      setTestResult('error');
     } finally {
       setTesting(false);
     }
   };
 
-  // 上传备份
   const uploadBackup = async () => {
+    setSyncing(true);
     const res = await window.electron.storage.webdavUploadBackup();
-    if (res.success) {
-      setActionMsg('上传成功');
-    } else {
-      setActionMsg('上传失败');
-    }
+    setSyncing(false);
+    setActionMsg(res.success ? '备份已上传' : '上传失败');
+    setTimeout(() => setActionMsg(null), 3000);
   };
 
-  // 下载备份
   const downloadBackup = async () => {
+    setSyncing(true);
     const res = await window.electron.storage.webdavDownloadBackup();
     if (res.success) {
       try {
         const [tasks, categories] = await Promise.all([
-          window.electron.storage.getTasks(), // 获取任务
-          window.electron.storage.getCategories(), // 获取分类
+          window.electron.storage.getTasks(),
+          window.electron.storage.getCategories(),
         ]);
-        dispatch({ type: 'LOAD_TASKS', payload: tasks }); // 加载任务
-        dispatch({ type: 'LOAD_CATEGORIES', payload: categories }); // 加载分类
-        setActionMsg('已从 WebDAV 恢复数据，并刷新任务列表');
-      } catch (e) {
-        console.error('刷新任务与分类失败', e);
-        setActionMsg('已从 WebDAV 恢复数据，但刷新列表失败');
+        dispatch({ type: 'LOAD_TASKS', payload: tasks });
+        dispatch({ type: 'LOAD_CATEGORIES', payload: categories });
+        setActionMsg('数据已恢复');
+      } catch {
+        setActionMsg('数据已恢复，但刷新列表失败');
       }
     } else {
       setActionMsg('恢复失败');
     }
+    setSyncing(false);
+    setTimeout(() => setActionMsg(null), 3000);
   };
 
   return (
@@ -143,69 +139,142 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
       {/* Header */}
       <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Toolbar sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              设置
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              个性化你的 Deadliner 体验
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 3,
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.2)' : 'rgba(168,85,247,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Zap size={24} style={{ color: '#a855f7' }} />
+            </Box>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
+                设置
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                个性化你的 Deadliner 体验
+              </Typography>
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
 
       {/* Settings Content */}
-      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, py: 4 }}>
-        <Grid container spacing={3}>
-          {/* 主题颜色选择 */}
-          <Grid size={{ xs: 12 }}>
-            <Card elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <Palette size={24} style={{ marginRight: 12 }} />
+      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, py: 3 }}>
+        <Stack spacing={3}>
+          {/* Appearance Section */}
+          <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
+            <CardContent sx={{ p: 0 }}>
+              {/* Section Header */}
+              <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Palette size={18} />
+                  外观
+                </Typography>
+              </Box>
+
+              <Box sx={{ p: 3 }}>
+                {/* Theme Toggle */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      主题配色
+                    <Typography variant="body1" sx={{ fontWeight: 500, mb: 0.5 }}>
+                      深色模式
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      选择你喜欢的配色方案
+                      {darkMode ? '当前为深色主题' : '当前为浅色主题'}
                     </Typography>
+                  </Box>
+                  <Box
+                    onClick={onThemeToggle}
+                    sx={{
+                      width: 56,
+                      height: 32,
+                      borderRadius: 16,
+                      bgcolor: darkMode ? 'primary.main' : 'grey.300',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      px: 0.5,
+                      justifyContent: darkMode ? 'flex-end' : 'flex-start',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 26,
+                        height: 26,
+                        borderRadius: '50%',
+                        bgcolor: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: 1,
+                      }}
+                    >
+                      {darkMode ? <Moon size={14} /> : <Sun size={14} />}
+                    </Box>
                   </Box>
                 </Box>
 
+                <Divider sx={{ mb: 3 }} />
+
+                {/* Theme Colors */}
+                <Typography variant="body1" sx={{ fontWeight: 500, mb: 2 }}>
+                  主题颜色
+                </Typography>
                 <Grid container spacing={2}>
                   {Object.entries(themeMetadata).map(([key, meta]) => (
-                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={key}>
+                    <Grid size={{ xs: 6, sm: 4, md: 3 }} key={key}>
                       <Paper
-                        elevation={themeColor === key ? 4 : 0}
+                        elevation={themeColor === key ? 3 : 0}
                         sx={{
                           p: 2,
                           cursor: 'pointer',
                           border: 2,
                           borderColor: themeColor === key ? 'primary.main' : 'divider',
-                          transition: 'all 0.3s ease',
+                          borderRadius: 3,
+                          transition: 'all 0.2s ease',
                           '&:hover': {
                             borderColor: 'primary.main',
-                            transform: 'translateY(-4px)',
-                            boxShadow: 4,
+                            transform: 'translateY(-2px)',
                           },
                         }}
                         onClick={() => onThemeColorChange(key as ThemeColorKey)}
                       >
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <Typography sx={{ fontSize: '2rem', mr: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
+                          <Box
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: '50%',
+                              bgcolor: themePalettes[key as ThemeColorKey]?.primary?.main || '#a855f7',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: 'white',
+                              fontSize: '1.2rem',
+                              boxShadow: 2,
+                            }}
+                          >
                             {meta.icon}
-                          </Typography>
-                          <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
                               {meta.name}
                             </Typography>
                             {themeColor === key && (
                               <Chip
-                                label="当前"
+                                label="使用中"
                                 size="small"
                                 color="primary"
-                                sx={{ height: 20, fontSize: '0.65rem' }}
+                                sx={{ height: 18, fontSize: '0.65rem', mt: 0.5 }}
                               />
                             )}
                           </Box>
@@ -217,123 +286,286 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                     </Grid>
                   ))}
                 </Grid>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </CardContent>
+          </Card>
 
-          {/* 应用信息 */}
-          <Grid size={{ xs: 12 }}>
-            <Card elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  关于 Deadliner
+          {/* Sync Section */}
+          <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
+            <CardContent sx={{ p: 0 }}>
+              {/* Section Header */}
+              <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {syncEnabled ? <Cloud size={18} /> : <CloudOff size={18} />}
+                  数据同步
                 </Typography>
-                <Stack spacing={1}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">版本</Typography>
-                    <Typography variant="body2">1.0.0</Typography>
+              </Box>
+
+              <Box sx={{ p: 3 }}>
+                {/* Sync Toggle */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                  <Box>
+                    <Typography variant="body1" sx={{ fontWeight: 500, mb: 0.5 }}>
+                      启用同步
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      通过 WebDAV 同步你的数据
+                    </Typography>
                   </Box>
-                  <Divider />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">平台</Typography>
-                    <Typography variant="body2">Windows</Typography>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={syncEnabled}
+                        onChange={(e) => setSyncEnabled(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label=""
+                    sx={{ m: 0 }}
+                  />
+                </Box>
+
+                {syncEnabled && (
+                  <>
+                    <Divider sx={{ mb: 3 }} />
+
+                    {/* Auto Sync Toggle */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                      <Box>
+                        <Typography variant="body1" sx={{ fontWeight: 500, mb: 0.5 }}>
+                          自动同步
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          应用打开时自动同步数据
+                        </Typography>
+                      </Box>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={autoSync}
+                            onChange={(e) => setAutoSync(e.target.checked)}
+                            color="primary"
+                          />
+                        }
+                        label=""
+                        sx={{ m: 0 }}
+                      />
+                    </Box>
+
+                    <Divider sx={{ mb: 3 }} />
+
+                    {/* WebDAV Settings */}
+                    <Typography variant="body1" sx={{ fontWeight: 500, mb: 2 }}>
+                      WebDAV 配置
+                    </Typography>
+                    <Stack spacing={2}>
+                      <TextField
+                        label="服务器地址"
+                        placeholder="https://example.com/remote.php/dav/files/username"
+                        value={webdavUrl}
+                        onChange={(e) => setWebdavUrl(e.target.value)}
+                        fullWidth
+                        size="small"
+                        helperText="WebDAV 服务器的完整 URL 地址"
+                      />
+                      <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <TextField
+                            label="用户名"
+                            value={webdavUsername}
+                            onChange={(e) => setWebdavUsername(e.target.value)}
+                            fullWidth
+                            size="small"
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                          <TextField
+                            label="密码"
+                            type="password"
+                            value={webdavPassword}
+                            onChange={(e) => setWebdavPassword(e.target.value)}
+                            fullWidth
+                            size="small"
+                          />
+                        </Grid>
+                      </Grid>
+
+                      {/* Action Buttons */}
+                      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 1 }}>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          startIcon={<Check size={16} />}
+                          onClick={saveWebdavSettings}
+                        >
+                          保存配置
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={testing ? <RefreshCw size={16} className="animate-spin" /> : <Cloud size={16} />}
+                          onClick={testConnection}
+                          disabled={testing || !webdavUrl}
+                        >
+                          {testing ? '测试中...' : '测试连接'}
+                        </Button>
+                      </Box>
+
+                      {/* Test Result */}
+                      {testResult && (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: testResult === 'success'
+                              ? (theme) => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.1)'
+                              : (theme) => theme.palette.mode === 'dark' ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)',
+                            border: 1,
+                            borderColor: testResult === 'success' ? 'success.main' : 'error.main',
+                          }}
+                        >
+                          {testResult === 'success' ? <Check size={18} color="green" /> : <X size={18} color="red" />}
+                          <Typography variant="body2" color={testResult === 'success' ? 'success.main' : 'error.main'}>
+                            {testResult === 'success' ? '连接成功' : '连接失败，请检查配置'}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Backup Actions */}
+                      <Divider sx={{ my: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        备份管理
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={syncing ? <RefreshCw size={16} className="animate-spin" /> : <Upload size={16} />}
+                          onClick={uploadBackup}
+                          disabled={syncing}
+                        >
+                          上传备份
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={syncing ? <RefreshCw size={16} className="animate-spin" /> : <Download size={16} />}
+                          onClick={downloadBackup}
+                          disabled={syncing}
+                        >
+                          恢复备份
+                        </Button>
+                      </Box>
+                    </Stack>
+                  </>
+                )}
+
+                {/* Action Message */}
+                {actionMsg && (
+                  <Box sx={{ mt: 2, p: 1.5, borderRadius: 2, bgcolor: 'action.selected' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      {actionMsg}
+                    </Typography>
                   </Box>
-                  <Divider />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography variant="body2" color="text.secondary">作者</Typography>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* About Section */}
+          <Card elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
+            <CardContent sx={{ p: 0 }}>
+              {/* Section Header */}
+              <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Info size={18} />
+                  关于
+                </Typography>
+              </Box>
+
+              <Box sx={{ p: 3 }}>
+                {/* App Info */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
+                  <Box
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 4,
+                      background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: 3,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '2rem' }}>⚡</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                      Deadliner
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      版本 1.0.0
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Divider sx={{ mb: 2 }} />
+
+                {/* Credits */}
+                <Stack spacing={1.5}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">开发者</Typography>
                     <Typography variant="body2">Haomin Chen & Atrix Zhou</Typography>
                   </Box>
                   <Divider />
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" color="text.secondary">项目地址</Typography>
-                    <Typography
-                      variant="body2"
+                    <Button
+                      variant="text"
+                      size="small"
+                      startIcon={<Github size={14} />}
                       component="a"
                       href="https://github.com/XiaoChennnng/Deadliner-Client"
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{
-                        color: 'primary.main',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline'
-                        }
-                      }}
+                      sx={{ textTransform: 'none' }}
                     >
-                      https://github.com/XiaoChennnng/Deadliner-Client
+                      GitHub
+                    </Button>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, py: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Made with
+                    </Typography>
+                    <Heart size={14} fill="#ec4899" color="#ec4899" />
+                    <Typography variant="body2" color="text.secondary">
+                      using React & MUI
                     </Typography>
                   </Box>
                 </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* 同步设置（WebDAV）*/}
-          <Grid size={{ xs: 12 }}>
-            <Card elevation={0} sx={{ border: 1, borderColor: 'divider' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    同步设置（WebDAV）
-                  </Typography>
-                </Box>
-
-                <Stack spacing={2}>
-                  <FormControlLabel
-                    control={<Switch checked={syncEnabled} onChange={(e) => setSyncEnabled(e.target.checked)} />}
-                    label="启用同步"
-                  />
-                  <FormControlLabel
-                    control={<Switch checked={autoSync} onChange={(e) => setAutoSync(e.target.checked)} />}
-                    label="自动同步"
-                  />
-
-                  <TextField
-                    label="WebDAV 地址"
-                    placeholder="例如：https://example.com/remote.php/dav/files/username"
-                    value={webdavUrl}
-                    onChange={(e) => setWebdavUrl(e.target.value)}
-                    fullWidth
-                  />
-                  <TextField
-                    label="用户名"
-                    value={webdavUsername}
-                    onChange={(e) => setWebdavUsername(e.target.value)}
-                    fullWidth
-                  />
-                  <TextField
-                    label="密码"
-                    type="password"
-                    value={webdavPassword}
-                    onChange={(e) => setWebdavPassword(e.target.value)}
-                    fullWidth
-                  />
-
-                  <Stack direction="row" spacing={2}>
-                    <Button variant="contained" onClick={saveWebdavSettings}>保存设置</Button>
-                    <Button variant="outlined" onClick={testConnection} disabled={testing}>
-                      {testing ? '测试中…' : '测试连接'}
-                    </Button>
-                    <Button variant="contained" color="primary" onClick={uploadBackup}>上传备份</Button>
-                    <Button variant="contained" color="secondary" onClick={downloadBackup}>恢复备份</Button>
-                  </Stack>
-
-                  {testResult && (
-                    <Typography variant="body2" color={testResult.startsWith('连接成功') ? 'success.main' : 'error.main'}>
-                      {testResult}
-                    </Typography>
-                  )}
-                  {actionMsg && (
-                    <Typography variant="body2" color="text.secondary">
-                      {actionMsg}
-                    </Typography>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+              </Box>
+            </CardContent>
+          </Card>
+        </Stack>
       </Box>
+
+      {/* CSS Animation */}
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          .animate-spin {
+            animation: spin 1s linear infinite;
+          }
+        `}
+      </style>
     </Box>
   );
 };

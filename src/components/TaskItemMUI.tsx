@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import {
-  Card,
-  CardContent,
-  CardActions,
   Typography,
-  Chip,
   IconButton,
   Box,
-  LinearProgress,
   Checkbox,
   Menu,
   MenuItem,
-  Tooltip,
   useTheme,
   Dialog,
   DialogTitle,
@@ -20,7 +14,6 @@ import {
   Button,
 } from '@mui/material';
 import {
-  Clock,
   Star,
   MoreVertical,
   CheckSquare,
@@ -39,7 +32,7 @@ interface TaskItemProps {
   onEdit?: (task: Task) => void;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, viewMode = 'grid', onEdit }) => {
   const { state, dispatch } = useApp();
   const theme = useTheme();
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
@@ -197,200 +190,233 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onEdit }) => {
 
   const deadlineInfo = getDeadlineInfo();
 
+  const getColorScheme = () => {
+    const isDark = theme.palette.mode === 'dark';
+    if (task.completed) {
+      return {
+        bg: isDark ? '#164A29' : '#DCFCE7',
+        fill: isDark ? 'rgba(110, 231, 183, 0.8)' : 'rgba(110, 231, 183, 1)',
+        textHover: isDark ? '#A7F3D0' : '#065F46',
+      };
+    }
+    
+    if (!deadlineInfo) {
+      return {
+        bg: isDark ? '#3B1E54' : '#F3E8FF',
+        fill: isDark ? 'rgba(192, 132, 252, 0.3)' : 'rgba(192, 132, 252, 0.4)',
+        textHover: isDark ? '#E9D5FF' : '#581C87',
+      };
+    }
+
+    if (deadlineInfo.daysRemaining <= 1 || deadlineInfo.remainingTime < 0) {
+      return {
+        bg: isDark ? '#432C1B' : '#FFEDD5',
+        fill: isDark ? 'rgba(253, 186, 116, 0.2)' : 'rgba(253, 186, 116, 0.3)',
+        textHover: isDark ? '#FDE68A' : '#78350F',
+      };
+    }
+    
+    return {
+      bg: isDark ? '#1E3A5F' : '#DBEAFE',
+      fill: isDark ? 'rgba(96, 165, 250, 0.3)' : 'rgba(96, 165, 250, 0.4)',
+      textHover: isDark ? '#BFDBFE' : '#1E3A8A',
+    };
+  };
+
+  const scheme = getColorScheme();
+  const progressWidth = task.completed ? 100 : (deadlineInfo ? deadlineInfo.progressPercentage : 0);
+  const rightText = task.completed ? '已完成' : (deadlineInfo ? deadlineInfo.statusText : '无期限');
+
   return (
-    <Card
-      elevation={isSelected ? 8 : 1}
+    <Box
       sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: '24px',
+        bgcolor: scheme.bg,
+        boxShadow: isSelected ? 3 : 1,
         transition: 'all 0.3s ease',
-        opacity: task.completed ? 0.7 : 1,
-        bgcolor: isSelected ? 'action.selected' : 'background.paper',
+        height: viewMode === 'grid' ? 112 : 'auto',
+        minHeight: viewMode === 'list' ? 88 : 112,
+        cursor: 'pointer',
         '&:hover': {
-          elevation: 3,
-          transform: 'translateY(-2px)',
+          boxShadow: 3,
+          '& .task-title': {
+            color: scheme.textHover,
+          }
         },
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+      onClick={(e) => {
+        if (state.isMultiSelectMode) {
+          handleSelect();
+        } else {
+          setMenuAnchorEl(e.currentTarget);
+        }
       }}
     >
-      <CardContent sx={{ flex: 1, pb: 1 }}>
-        {/* Header: Checkbox, Star */}
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+      {/* Progress Fill */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          bgcolor: scheme.fill,
+          width: `${progressWidth}%`,
+          transition: 'width 0.5s ease-in-out',
+          zIndex: 0
+        }}
+      />
+
+      <Box sx={{ position: 'relative', height: '100%', p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+        {/* Left Side */}
+        <Box sx={{ display: 'flex', alignItems: 'center', height: '100%', maxWidth: '70%', flex: 1, gap: 2 }}>
           {state.isMultiSelectMode && (
             <Checkbox
-              size="small"
+              size="medium"
               checked={isSelected}
               onChange={handleSelect}
-              sx={{ mr: 1, p: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              sx={{ p: 0, color: 'text.secondary', '&.Mui-checked': { color: 'primary.main' } }}
             />
           )}
-
-          <Box sx={{ flex: 1 }} />
-
-          <Tooltip title={task.isStarred ? '取消标星' : '标星'}>
-            <IconButton
-              size="small"
-              onClick={handleToggleStar}
+          {!state.isMultiSelectMode && (
+            <Checkbox
+              checked={task.completed}
+              onChange={handleToggleComplete}
+              onClick={(e) => e.stopPropagation()}
+              icon={<CheckSquare size={22} />}
+              checkedIcon={<CheckSquare size={22} />}
               sx={{
-                color: task.isStarred ? 'warning.main' : 'action.disabled',
-                p: 0.5,
-              }}
-            >
-              <Star size={18} fill={task.isStarred ? 'currentColor' : 'none'} />
-            </IconButton>
-          </Tooltip>
-
-          <IconButton
-            size="small"
-            onClick={(e) => setMenuAnchorEl(e.currentTarget)}
-            sx={{ p: 0.5 }}
-          >
-            <MoreVertical size={18} />
-          </IconButton>
-        </Box>
-
-        {/* Title */}
-        <Typography
-          variant="h6"
-          sx={{
-            mb: 1,
-            fontSize: '1rem',
-            fontWeight: 600,
-            textDecoration: task.completed ? 'line-through' : 'none',
-            color: task.completed ? 'text.disabled' : 'text.primary',
-          }}
-        >
-          {task.title}
-        </Typography>
-
-        {/* Description */}
-        {task.description && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              mb: 1.5,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {task.description}
-          </Typography>
-        )}
-
-
-
-        {/* Habit Streak */}
-        {task.type === 'habit' && task.streak && task.streak > 0 && (
-          <Box sx={{ mb: 1.5 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              🔥 连续打卡 {task.streak} 天
-            </Typography>
-          </Box>
-        )}
-
-        {/* Deadline Info */}
-        {deadlineInfo && (
-          <Box sx={{ mb: 1.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
-              <Clock size={14} />
-              <Typography variant="caption" sx={{ color: deadlineInfo.statusColor, fontWeight: 500 }}>
-                {deadlineInfo.statusText}
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={deadlineInfo.progressPercentage}
-              sx={{
-                height: 6,
-                borderRadius: 3,
-                bgcolor: 'action.hover',
-                '& .MuiLinearProgress-bar': {
-                  bgcolor: deadlineInfo.statusColor,
-                  borderRadius: 3,
-                },
+                p: 0,
+                color: 'text.secondary',
+                opacity: 0.7,
+                '&.Mui-checked': { color: 'success.main', opacity: 1 },
+                '&:hover': { opacity: 1 }
               }}
             />
+          )}
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden' }}>
+            <Typography
+              className="task-title"
+              variant="h6"
+              sx={{
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                color: task.completed ? 'text.secondary' : 'text.primary',
+                textDecoration: task.completed ? 'line-through' : 'none',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                mb: 0.5,
+                transition: 'color 0.2s ease',
+              }}
+            >
+              {task.title}
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '0.875rem',
+                color: 'text.secondary',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {task.description || (deadlineInfo ? `${task.completed ? '完成于' : '截止于'} ${formatDistanceToNow(new Date(task.deadline!), { addSuffix: true, locale: zhCN })}` : '添加描述...')}
+            </Typography>
           </Box>
-        )}
-
-        {/* Priority Badge */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
-          <Chip
-            label={getPriorityLabel(task.priority)}
-            size="small"
-            sx={{
-              bgcolor: getPriorityColor(task.priority),
-              color: theme.palette.getContrastText(getPriorityColor(task.priority)),
-              fontSize: '0.7rem',
-              height: 20,
-            }}
-          />
-          <Typography variant="caption" color="text.secondary">
-            {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true, locale: zhCN })}
-          </Typography>
         </Box>
-      </CardContent>
 
-      {/* Actions */}
-      <CardActions sx={{ px: 2, pb: 2, pt: 0 }}>
-        <Checkbox
-          checked={task.completed}
-          onChange={handleToggleComplete}
-          icon={<CheckSquare size={20} />}
-          checkedIcon={<CheckSquare size={20} />}
-          sx={{
-            color: 'success.main',
-            '&.Mui-checked': {
-              color: 'success.main',
-            },
-          }}
-        />
-        <Typography variant="body2" sx={{ flex: 1, ml: 1 }}>
-          {task.completed ? '已完成' : '标记完成'}
-        </Typography>
-      </CardActions>
+        {/* Right Side */}
+        <Box sx={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography
+            sx={{
+              fontSize: '1.125rem',
+              fontWeight: 700,
+              color: task.completed ? (theme.palette.mode === 'dark' ? 'white' : 'text.primary') : 'text.primary',
+              whiteSpace: 'nowrap',
+              display: { xs: 'none', sm: 'block' }
+            }}
+          >
+            {rightText}
+          </Typography>
+          
+          {/* Action Menu button shown on hover or when clicked */}
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuAnchorEl(e.currentTarget);
+            }}
+            sx={{ p: 0.5, color: 'text.secondary', opacity: 0.6, '&:hover': { opacity: 1, bgcolor: 'rgba(0,0,0,0.05)' } }}
+          >
+            <MoreVertical size={20} />
+          </IconButton>
+        </Box>
+      </Box>
 
       {/* Menu */}
       <Menu
         anchorEl={menuAnchorEl}
         open={Boolean(menuAnchorEl)}
-        onClose={() => setMenuAnchorEl(null)}
+        onClose={(e: any) => {
+          e.stopPropagation();
+          setMenuAnchorEl(null);
+        }}
+        PaperProps={{ sx: { borderRadius: 2, boxShadow: 3 } }}
       >
-        <MenuItem onClick={() => {
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
           setMenuAnchorEl(null);
           if (onEdit) onEdit(task);
         }}>
           <Edit size={18} style={{ marginRight: 8 }} />
           编辑
         </MenuItem>
-        <MenuItem onClick={handleArchive}>
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
+          handleToggleStar();
+          setMenuAnchorEl(null);
+        }}>
+          <Star size={18} fill={task.isStarred ? 'currentColor' : 'none'} style={{ marginRight: 8, color: task.isStarred ? theme.palette.warning.main : 'inherit' }} />
+          {task.isStarred ? '取消标星' : '标星'}
+        </MenuItem>
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
+          handleArchive();
+        }}>
           <Archive size={18} style={{ marginRight: 8 }} />
           归档
         </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+        <MenuItem onClick={(e) => {
+          e.stopPropagation();
+          handleDelete();
+        }} sx={{ color: 'error.main' }}>
           <Trash2 size={18} style={{ marginRight: 8 }} />
           删除
         </MenuItem>
       </Menu>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>确认删除</DialogTitle>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ fontWeight: 600 }}>确认删除</DialogTitle>
         <DialogContent>
           <Typography>
             确定要删除"{task.title}"吗？此操作无法撤销。
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>取消</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained">
+        <DialogActions sx={{ p: 2, pt: 1 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} sx={{ borderRadius: 50, px: 3, color: 'text.secondary' }}>取消</Button>
+          <Button onClick={confirmDelete} color="error" variant="contained" disableElevation sx={{ borderRadius: 50, px: 3 }}>
             删除
           </Button>
         </DialogActions>
       </Dialog>
-    </Card>
+    </Box>
   );
 };

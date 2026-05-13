@@ -35,6 +35,13 @@ const dataCache = {
   invalidate: (key: string) => cache.delete(key)
 };
 
+// 全局 dispatch 引用，供 AI Agent Pipeline 使用
+let globalDispatch: React.Dispatch<AppAction> | null = null;
+export const setGlobalDispatch = (dispatch: React.Dispatch<AppAction>) => {
+  globalDispatch = dispatch;
+};
+export const getGlobalDispatch = () => globalDispatch;
+
 // 动作类型
 export type AppAction =
   | { type: 'SET_LOADING'; payload: boolean }
@@ -269,6 +276,12 @@ const AppContext = createContext<{
   // 提供者组件
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  // 设置全局 dispatch 供 AI Agent Pipeline 使用
+  useEffect(() => {
+    setGlobalDispatch(dispatch);
+    return () => setGlobalDispatch(null);
+  }, [dispatch]);
 
   // 组件挂载时从数据库加载任务，支持缓存
   useEffect(() => {

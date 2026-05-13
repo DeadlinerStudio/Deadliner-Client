@@ -222,42 +222,86 @@ export const ArchivePage: React.FC = () => {
       <Box sx={{ px: { xs: 2, md: 4 }, py: 3, bgcolor: 'background.default' }}>
         <Grid container spacing={2}>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'grey.700', color: 'white' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
                   {stats.total}
                 </Typography>
-                <Typography variant="body2">总项目</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  总计
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'info.main' }}>
                   {stats.tasks}
                 </Typography>
-                <Typography variant="body2">任务</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  任务
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'secondary.main', color: 'secondary.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'secondary.main' }}>
                   {stats.habits}
                 </Typography>
-                <Typography variant="body2">习惯</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  习惯
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
           <Grid size={{ xs: 6, sm: 3 }}>
-            <Card elevation={0} sx={{ textAlign: 'center', bgcolor: 'success.main', color: 'success.contrastText' }}>
-              <CardContent>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+            <Card
+              elevation={0}
+              sx={{
+                textAlign: 'center',
+                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.08)',
+                border: 1,
+                borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
+                borderRadius: 3,
+              }}
+            >
+              <CardContent sx={{ py: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
                   {stats.completed}
                 </Typography>
-                <Typography variant="body2">已完成</Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                  已完成
+                </Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -275,16 +319,78 @@ export const ArchivePage: React.FC = () => {
               justifyContent: 'center',
               height: '100%',
               textAlign: 'center',
+              py: 8,
             }}
           >
-            <Typography variant="h4" sx={{ mb: 2 }}>
-              📦
+            {/* Empty State Illustration */}
+            <Box
+              sx={{
+                width: 200,
+                height: 200,
+                mb: 4,
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {/* Main box */}
+              <Box
+                sx={{
+                  width: 120,
+                  height: 100,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.2)' : 'rgba(168,85,247,0.1)',
+                  borderRadius: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: 2,
+                  borderStyle: 'dashed',
+                  borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.4)' : 'rgba(168,85,247,0.3)',
+                }}
+              >
+                <Typography sx={{ fontSize: '3rem' }}>📦</Typography>
+              </Box>
+              {/* Decorative elements */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 20,
+                  right: 30,
+                  width: 50,
+                  height: 50,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.2)' : 'rgba(59,130,246,0.1)',
+                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography sx={{ fontSize: '1.5rem' }}>✓</Typography>
+              </Box>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 30,
+                  left: 20,
+                  width: 40,
+                  height: 40,
+                  bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography sx={{ fontSize: '1.2rem' }}>⭐</Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
+              暂无已归档项目
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-              还没有存档的项目
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              完成的任务和习惯会自动存档到这里
+            <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 300 }}>
+              已完成的任务和习惯会自动归档到这里，便于回顾和管理
             </Typography>
           </Box>
         ) : (

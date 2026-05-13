@@ -1,0 +1,52 @@
+{
+  "name": "create_habit",
+  "description": "创建新习惯，需要用户提供习惯名称、周期、频率等信息",
+  "domain": "HabitAgent",
+  "capabilities": ["CREATE_HABIT"],
+  "supportedPlatforms": ["ios", "android", "harmony", "web"],
+  "requiresUiConfirmation": true,
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "习惯名称（≤30字符）"
+      },
+      "description": {
+        "type": "string",
+        "description": "习惯详细描述"
+      },
+      "period": {
+        "type": "string",
+        "description": "周期频率",
+        "enum": ["daily", "weekly", "monthly"]
+      },
+      "timesPerPeriod": {
+        "type": "number",
+        "description": "每个周期的目标次数",
+        "minimum": 1
+      },
+      "targetType": {
+        "type": "string",
+        "description": "目标类型",
+        "enum": ["exact", "minimum", "maximum"]
+      },
+      "totalTarget": {
+        "type": "number",
+        "description": "总体目标次数（如 30 天连续坚持）"
+      },
+      "category": {
+        "type": "string",
+        "description": "习惯分类，默认 'uncategorized'"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "习惯标签"
+      }
+    },
+    "required": ["title", "period"]
+  }
+}
