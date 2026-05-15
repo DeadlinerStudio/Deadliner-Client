@@ -4,7 +4,7 @@
  */
 
 import { ToolExecutor, ToolExecutionResult } from '../SkillRegistry';
-import { AIHabit } from '../types';
+import { AIHabit } from '../../types';
 import { getGlobalDispatch } from '../../../context/AppContext';
 
 // 生成 UUID
@@ -32,6 +32,8 @@ interface HabitData {
   streak: number;
   isStarred: boolean;
   isArchived: boolean;
+  period?: 'daily' | 'weekly' | 'monthly';
+  timesPerPeriod?: number;
 }
 
 interface HabitQuery {

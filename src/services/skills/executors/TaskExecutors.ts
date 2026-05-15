@@ -4,7 +4,7 @@
  */
 
 import { ToolExecutor, ToolExecutionResult } from '../SkillRegistry';
-import { AITask } from '../types';
+import { AITask } from '../../types';
 import { getGlobalDispatch } from '../../../context/AppContext';
 
 // 生成 UUID

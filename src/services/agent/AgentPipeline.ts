@@ -428,7 +428,7 @@ export class AgentPipeline {
         toolCall.tool,
         toolCall.args,
         toolCall.reason,
-        toolCall.executionMode
+        toolCall.executionMode as 'AUTO' | 'ASK_USER'
       );
 
       // 存储待处理上下文

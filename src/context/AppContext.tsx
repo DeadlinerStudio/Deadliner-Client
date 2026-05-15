@@ -37,7 +37,7 @@ const dataCache = {
 
 // 全局 dispatch 引用，供 AI Agent Pipeline 使用
 let globalDispatch: React.Dispatch<AppAction> | null = null;
-export const setGlobalDispatch = (dispatch: React.Dispatch<AppAction>) => {
+export const setGlobalDispatch = (dispatch: React.Dispatch<AppAction> | null) => {
   globalDispatch = dispatch;
 };
 export const getGlobalDispatch = () => globalDispatch;

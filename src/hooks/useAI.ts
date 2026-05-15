@@ -176,7 +176,7 @@ interface UseAIGenerateReturn {
 }
 
 export function useAIGenerate(options: UseAIGenerateOptions = {}): UseAIGenerateReturn {
-  const { isGenerating, thinking, result, error, process } = useAIProcess({
+  const { isProcessing: isGenerating, thinking, result, error, process } = useAIProcess({
     onThinking: (payload) => {
       options.onThinking?.(`${payload.agentName}: ${payload.message}`);
     },

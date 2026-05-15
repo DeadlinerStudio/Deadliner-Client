@@ -138,17 +138,17 @@ export const GuidedSupplementDialog: React.FC<GuidedSupplementDialogProps> = ({
   const FieldLabel: React.FC<{ field: string }> = ({ field }) => {
     switch (field) {
       case 'time':
-        return '截止时间';
+        return <span>截止时间</span>;
       case 'goal':
-        return '详细目标';
+        return <span>详细目标</span>;
       case 'detail':
-        return '补充说明';
+        return <span>补充说明</span>;
       case 'priority':
-        return '优先级';
+        return <span>优先级</span>;
       case 'type':
-        return '类型选择';
+        return <span>类型选择</span>;
       default:
-        return field;
+        return <span>{field}</span>;
     }
   };
 

@@ -9,6 +9,7 @@ import {
   MemorySnapshot,
   MemorySyncOperation,
   MemorySyncPayload,
+  MemorySyncOperationType,
   MEMORY_CONFIG,
   generateUUID,
 } from '../types';
@@ -125,7 +126,7 @@ export class MemoryStore {
     this.revision++;
 
     this.pendingSync.push({
-      type: 'UpsertFragment',
+      type: MemorySyncOperationType.UpsertFragment,
       fragment,
     });
 
@@ -149,7 +150,7 @@ export class MemoryStore {
       this.fragments.splice(index, 1);
       this.revision++;
       this.pendingSync.push({
-        type: 'DeleteFragment',
+        type: MemorySyncOperationType.DeleteFragment,
         fragmentId,
       });
       this.saveToStorage();
@@ -167,7 +168,7 @@ export class MemoryStore {
     this.userProfile = profile.trim();
     this.revision++;
     this.pendingSync.push({
-      type: 'ReplaceUserProfile',
+      type: MemorySyncOperationType.ReplaceUserProfile,
       profile: this.userProfile,
     });
     this.saveToStorage();
@@ -412,7 +413,7 @@ export class MemoryStore {
     // 添加删除操作到待同步队列
     for (const id of removedIds) {
       this.pendingSync.push({
-        type: 'DeleteFragment',
+        type: MemorySyncOperationType.DeleteFragment,
         fragmentId: id,
       });
     }
@@ -428,7 +429,7 @@ export class MemoryStore {
     this.conversationHistory = [];
     this.pendingSync = [
       {
-        type: 'ReplaceUserProfile',
+        type: MemorySyncOperationType.ReplaceUserProfile,
         profile: '',
       },
     ];

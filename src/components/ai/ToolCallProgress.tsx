@@ -9,7 +9,7 @@ import { Check, AlertCircle, Loader2, ChevronDown, ChevronUp, Settings } from 'l
 
 interface ToolCall {
   id: string;
-  toolName: string;
+  tool: string;
   args: Record<string, unknown>;
   reason?: string;
   executionMode: 'AUTO' | 'ASK_USER';

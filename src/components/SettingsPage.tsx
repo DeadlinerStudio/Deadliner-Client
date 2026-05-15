@@ -254,7 +254,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                               width: 40,
                               height: 40,
                               borderRadius: '50%',
-                              bgcolor: themePalettes[key as ThemeColorKey]?.primary?.main || '#a855f7',
+                              bgcolor: (themePalettes as any)[key]?.light?.primary?.main || '#a855f7',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',

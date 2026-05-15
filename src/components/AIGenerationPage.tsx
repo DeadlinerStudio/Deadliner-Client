@@ -55,7 +55,8 @@ import {
   AuthManager,
 } from '../utils/aiApi';
 
-import { useAIProcess, type MixedResult } from '../hooks/useAI';
+import { useAIProcess } from '../hooks/useAI';
+import type { MixedResult } from '../services/types';
 import { ThinkingIndicator } from './ai/ThinkingIndicator';
 import { ToolCallProgress } from './ai/ToolCallProgress';
 import { GuidedSupplementDialog } from './ai/GuidedSupplementDialog';
@@ -195,11 +196,11 @@ export const AIGenerationPage: React.FC = () => {
     },
   });
 
-  const handleAgentResult = useCallback((result: MixedResult) => {
+  const handleAgentResult = useCallback((payload: any) => {
     const tasks: GeneratedTask[] = [];
 
-    if (result.tasks) {
-      for (const task of result.tasks) {
+    if (payload.tasks) {
+      for (const task of payload.tasks as any[]) {
         tasks.push({
           title: task.name,
           description: task.note || '',
@@ -210,8 +211,8 @@ export const AIGenerationPage: React.FC = () => {
       }
     }
 
-    if (result.habits) {
-      for (const habit of result.habits) {
+    if (payload.habits) {
+      for (const habit of payload.habits as any[]) {
         tasks.push({
           title: habit.name,
           description: habit.description || `${habit.period} - 目标 ${habit.timesPerPeriod} 次`,
@@ -223,8 +224,8 @@ export const AIGenerationPage: React.FC = () => {
 
     setGeneratedTasks(tasks);
 
-    if (result.chatResponse) {
-      setChatResponse(result.chatResponse);
+    if (payload.chatResponse) {
+      setChatResponse(payload.chatResponse);
     }
   }, []);
 
@@ -772,7 +773,7 @@ export const AIGenerationPage: React.FC = () => {
                     {toolCalls.length > 0 && (
                       <Box sx={{ mt: 1 }}>
                         <ToolCallProgress
-                          toolCalls={toolCalls.map(tc => ({ id: tc.id, toolName: tc.toolName, args: tc.args, reason: tc.reason, executionMode: tc.executionMode }))}
+                          toolCalls={toolCalls.map(tc => ({ id: tc.id, tool: tc.toolName, args: tc.args, reason: tc.reason, executionMode: tc.executionMode }))}
                           results={new Map(Array.from(toolResults.entries()).map(([id, result]) => [id, { id: result.id, success: true, result: result.result, error: result.error }]))}
                         />
                       </Box>

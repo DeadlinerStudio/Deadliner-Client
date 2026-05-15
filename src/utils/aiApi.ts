@@ -275,7 +275,7 @@ async function callKimiAPI(
 // 认证机制管理
 export class AuthManager {
   private static instance: AuthManager;
-  private authData: Map<string, { apiKey: string; baseUrl?: string; expiresAt?: number }> = new Map();
+  private authData: Map<string, { apiKey: string; baseUrl?: string; expiresAt?: number } | undefined> = new Map();
 
   static getInstance(): AuthManager {
     if (!AuthManager.instance) {
@@ -297,8 +297,11 @@ export class AuthManager {
       // 从 localStorage 加载
       const stored = localStorage.getItem(`ai_auth_${providerId}`);
       if (stored) {
-        auth = JSON.parse(stored);
-        this.authData.set(providerId, auth);
+        const parsed = JSON.parse(stored);
+        if (parsed) {
+          auth = parsed;
+          this.authData.set(providerId, auth);
+        }
       }
     }
 
@@ -309,7 +312,7 @@ export class AuthManager {
       return null;
     }
 
-    return auth;
+    return auth ?? undefined;
   }
 
   clearAuth(providerId: string) {
