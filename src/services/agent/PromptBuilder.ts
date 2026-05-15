@@ -36,19 +36,26 @@ export class PromptBuilder {
 你的职责是将用户输入准确分流给对应的领域专家。
 
 【路由规则】:
-- TaskAgent: 用户提到的单次、具体截止日期的任务（如"明天交作业"、"周五开会"、"帮我记住要买牛奶"）。
+- TaskAgent: 用户提到单次、具体截止日期的任务（如"明天交作业"、"周五开会"、"帮我记住要买牛奶"）。
 - HabitAgent: 用户提到的重复性、周期性行为（如"每天跑步"、"每周健身"、"养成阅读习惯"）。
 - ChatAgent: 闲聊、问候、确认、偏好记录、无具体待办/习惯的内容。
 
+【关键规则 - 时间表达处理】:
+- 当用户只提到时间（如"明天早上"、"后天"、"下周"、"今天下午"）但没有说具体做什么时，说明用户正在构思任务/习惯，应路由到 TaskAgent 让它主动询问。
+- 例如："明天早上" → TaskAgent（+ ChatAgent做伴）
+- 例如："后天" → TaskAgent
+- 例如："下周三" → TaskAgent
+- 不要仅因为用户提到了时间就路由到 ChatAgent。
+
 【输出要求】:
-1. 必须输出纯 JSON，不要额外说明。
+1. 严禁输出任何非 JSON 内容。不要输出问候语、解释、markdown 代码块标记等。
 2. primaryIntent: "ExtractTasks" | "ExtractHabits" | "Chat"
 3. routedAgents: 数组，包含 "TaskAgent", "HabitAgent", "ChatAgent" 中的一个或多个。
 4. 如果不确定，保持简洁，返回 "Chat"。
 
 用户语言：${preferredLang}
 
-必须输出 JSON：
+必须只输出一个合法的 JSON 对象（不要有前后的文字说明或代码块标记）：
 {
   "primaryIntent": "...",
   "routedAgents": ["..."]
@@ -83,13 +90,22 @@ ${toolsSection}
 - 每轮至少输出 1 个 toolCall。
 - executionMode 只能填 "AUTO" 或 "ASK_USER"；涉及写操作默认 "ASK_USER"。
 - 若无法确定参数，仍需输出 toolCall，并将 executionMode 设为 "ASK_USER" 由宿主确认。
+- 严禁输出任何非 JSON 内容。不要输出问候语、解释、markdown 代码块标记等。
+
+【关键 - 不完整输入处理】:
+- 如果用户只提供了时间信息（如"明天早上"、"后天"、"下周三"）但没有说具体做什么，你应该：
+  1. 输出 create_task toolCall，将已知的时间填入 deadline
+  2. 将 executionMode 设为 "ASK_USER"
+  3. 在 chatResponse 中主动询问用户想在这个时间创建什么任务
+- 示例：用户说"明天早上" → 你输出 create_task(deadline="2026-05-16 09:00", executionMode="ASK_USER") + chatResponse="您想在明天早上创建什么任务呢？请告诉我任务名称。"
+- 目标是引导用户补充完整信息，而不是直接拒绝或只做查询。
 
 【时间格式要求】:
 - 所有时间必须使用 "YYYY-MM-DD HH:mm" 格式（24小时制）。
 - 相对时间（如"明天"、"周五"、"下周"）请转换为绝对时间。
 - 当前时间 ${currentTime} 供参考。
 
-必须输出 JSON：
+必须只输出一个合法的 JSON 对象（不要有前后的文字说明或代码块标记）：
 {
   "tasks": [],
   "chatResponse": "...",
@@ -128,13 +144,14 @@ ${toolsSection}
 - 每轮至少输出 1 个 toolCall。
 - executionMode 只能填 "AUTO" 或 "ASK_USER"；涉及写操作默认 "ASK_USER"。
 - 若无法确定参数，仍需输出 toolCall，并将 executionMode 设为 "ASK_USER" 由宿主确认。
+- 严禁输出任何非 JSON 内容。不要输出问候语、解释、markdown 代码块标记等。
 
 【周期格式】:
 - daily: 每天
 - weekly: 每周
 - monthly: 每月
 
-必须输出 JSON：
+必须只输出一个合法的 JSON 对象（不要有前后的文字说明或代码块标记）：
 {
   "habits": [],
   "chatResponse": "...",
@@ -158,7 +175,7 @@ ${toolsSection}
 用户语言：${preferredLang}
 
 【强制约束】:
-- 必须输出纯 JSON，禁止输出任何 JSON 之外的自然语言。
+- 必须输出纯 JSON，禁止输出任何 JSON 之外的自然语言。严禁输出问候语、解释、markdown 代码块标记等。
 - 如果只是正常聊天，请把回复放进 chatResponse。
 - 如果用户在表达长期偏好、身份信息、作息偏好、输出偏好、工作习惯等，可写入：
   1. newMemories: 字符串数组 - 适合长期记住的信息
@@ -167,7 +184,12 @@ ${toolsSection}
 - 不要输出 habits，除非用户明确提出周期性习惯。
 - 不要输出 toolCalls，除非确实需要本地数据才能回答。
 
-必须输出 JSON：
+【关键 - 主动引导】:
+- 如果用户提到了时间（如"明天早上"、"后天"、"下周"）但没有说具体做什么，你应该主动询问用户想要创建什么任务或习惯。
+- 示例：用户说"明天早上" → chatResponse="您想在明天早上创建什么任务或习惯呢？请告诉我具体内容。"
+- 目标是帮助用户完善他们的计划，而不是仅仅回复"好的我查一下"。
+
+必须只输出一个合法的 JSON 对象（不要有前后的文字说明或代码块标记）：
 {
   "chatResponse": "...",
   "newMemories": [],
@@ -201,7 +223,7 @@ ${toolsSection}
 ${contextSummary ? `【本轮上下文】${contextSummary}` : ''}
 
 【强制约束】:
-- 必须输出纯 JSON，禁止输出 JSON 之外的自然语言。
+- 必须输出纯 JSON，禁止输出任何 JSON 之外的自然语言。严禁输出问候语、解释、markdown 代码块标记等。
 - 只负责产出：
   1. newMemories: 适合长期保留的短句数组
   2. userProfile: 可覆盖更新的用户画像摘要
@@ -213,7 +235,7 @@ ${contextSummary ? `【本轮上下文】${contextSummary}` : ''}
 - 只有长期偏好、身份信息、稳定习惯、常用时间偏好、输出偏好、持续目标等内容才应进入记忆。
 - 单次事务性内容通常不应该进入长期记忆，除非它反映了用户稳定偏好。
 
-必须输出 JSON：
+必须只输出一个合法的 JSON 对象（不要有前后的文字说明或代码块标记）：
 {
   "newMemories": [],
   "userProfile": null,

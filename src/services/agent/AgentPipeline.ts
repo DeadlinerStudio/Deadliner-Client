@@ -207,15 +207,14 @@ export class AgentPipeline {
    * 解析路由响应
    */
   private parseRouteResponse(content: string): RouteInfo {
-    try {
-      let cleanContent = content.trim();
-      if (cleanContent.startsWith('```json')) {
-        cleanContent = cleanContent
-          .replace(/```json\s*/, '')
-          .replace(/```\s*$/, '');
-      }
+    const extractedJson = this.extractJsonFromText(content);
 
-      const parsed = JSON.parse(cleanContent);
+    if (!extractedJson) {
+      return { primaryIntent: 'Chat', routedAgents: [AgentRole.ChatAgent] };
+    }
+
+    try {
+      const parsed = JSON.parse(extractedJson);
 
       const primaryIntent = parsed.primaryIntent || 'Chat';
 
@@ -347,18 +346,81 @@ export class AgentPipeline {
   }
 
   /**
+   * 尝试从文本中提取 JSON 对象
+   */
+  private extractJsonFromText(text: string): string | null {
+    const trimmed = text.trim();
+
+    // 1. 尝试直接解析
+    try {
+      JSON.parse(trimmed);
+      return trimmed;
+    } catch {
+      // 继续尝试提取
+    }
+
+    // 2. 尝试提取 ```json ... ``` 代码块
+    const jsonBlockMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonBlockMatch) {
+      const candidate = jsonBlockMatch[1].trim();
+      try {
+        JSON.parse(candidate);
+        return candidate;
+      } catch {
+        // 继续尝试
+      }
+    }
+
+    // 3. 尝试查找第一个 { 和最后一个 } 并提取
+    const firstBrace = trimmed.indexOf('{');
+    const lastBrace = trimmed.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      const candidate = trimmed.slice(firstBrace, lastBrace + 1);
+      try {
+        JSON.parse(candidate);
+        return candidate;
+      } catch {
+        // 继续尝试修复
+      }
+
+      // 4. 尝试修复常见 JSON 格式错误（LLM 常见的毛病）
+      try {
+        let fixed = candidate
+          // 将单引号替换为双引号（但避免转义问题）
+          .replace(/(?<!\\)'/g, '"')
+          // 修复未加引号的 key（如 tasks: -> "tasks":）
+          .replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g, '$1"$2":')
+          // 移除尾随逗号
+          .replace(/,(\s*[}\]])/g, '$1')
+          // 移除注释
+          .replace(/\/\/.*$/gm, '')
+          .replace(/\/\*[\s\S]*?\*\//g, '');
+        const parsed = JSON.parse(fixed);
+        return fixed;
+      } catch {
+        // 修复失败，返回 null
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * 解析 Worker 响应
    */
   private parseWorkerResponse(agent: AgentRole, content: string): MixedResult {
-    try {
-      let cleanContent = content.trim();
-      if (cleanContent.startsWith('```json')) {
-        cleanContent = cleanContent
-          .replace(/```json\s*/, '')
-          .replace(/```\s*$/, '');
-      }
+    const extractedJson = this.extractJsonFromText(content);
 
-      const parsed = JSON.parse(cleanContent);
+    if (!extractedJson) {
+      console.warn(`Worker ${agent} response is not valid JSON, using raw text`);
+      return {
+        chatResponse: content,
+        error: '解析响应失败',
+      };
+    }
+
+    try {
+      const parsed = JSON.parse(extractedJson);
 
       const result: MixedResult = {
         chatResponse: parsed.chatResponse,
@@ -402,7 +464,7 @@ export class AgentPipeline {
 
       return result;
     } catch (err) {
-      console.error('Failed to parse worker response:', err);
+      console.warn('Failed to parse worker response:', err);
       return {
         chatResponse: content,
         error: '解析响应失败',

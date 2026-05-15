@@ -229,7 +229,6 @@ export const ArchivePage: React.FC = () => {
                 bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
                 border: 1,
                 borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
-                borderRadius: 3,
               }}
             >
               <CardContent sx={{ py: 2 }}>
@@ -250,7 +249,6 @@ export const ArchivePage: React.FC = () => {
                 bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.15)' : 'rgba(59,130,246,0.08)',
                 border: 1,
                 borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(59,130,246,0.3)' : 'rgba(59,130,246,0.15)',
-                borderRadius: 3,
               }}
             >
               <CardContent sx={{ py: 2 }}>
@@ -271,7 +269,6 @@ export const ArchivePage: React.FC = () => {
                 bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.08)',
                 border: 1,
                 borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.15)',
-                borderRadius: 3,
               }}
             >
               <CardContent sx={{ py: 2 }}>
@@ -292,7 +289,6 @@ export const ArchivePage: React.FC = () => {
                 bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.08)',
                 border: 1,
                 borderColor: theme => theme.palette.mode === 'dark' ? 'rgba(34,197,94,0.3)' : 'rgba(34,197,94,0.15)',
-                borderRadius: 3,
               }}
             >
               <CardContent sx={{ py: 2 }}>

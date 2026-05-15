@@ -391,7 +391,7 @@ export const AIGenerationPage: React.FC = () => {
   const hasApiKey = !!providerConfigs[selectedProvider]?.apiKey;
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', bgcolor: '#f8f7fc' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <style>
         {`
           @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -402,19 +402,18 @@ export const AIGenerationPage: React.FC = () => {
       {/* Header */}
       <Box sx={{
         px: { xs: 2, md: 4 },
-        py: 2,
+        py: 3,
         borderBottom: 1,
         borderColor: 'divider',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        bgcolor: 'background.paper',
       }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
             AI 智能规划
           </Typography>
-          <Typography variant="body2" sx={{ color: '#94a3b8' }}>
+          <Typography variant="body2" color="text.secondary">
             使用 DeepSeek 智能分解任务和目标
           </Typography>
         </Box>
@@ -465,7 +464,7 @@ export const AIGenerationPage: React.FC = () => {
       </Box>
 
       {/* Main Content */}
-      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, py: 1.5, pb: 0.5, '&::-webkit-scrollbar': { width: 6 }, '&::-webkit-scrollbar-thumb': { bgcolor: '#e2e8f0', borderRadius: 3 } }}>
+      <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, py: 3 }}>
         {/* Warning Banner - only show when API not configured */}
         {!hasApiKey && (
         <Box sx={{
@@ -524,7 +523,7 @@ export const AIGenerationPage: React.FC = () => {
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: { xs: 'wrap', lg: 'nowrap' } }}>
           {/* Left Column - ~58% */}
           <Box sx={{ width: { xs: '100%', lg: '58%' }, minWidth: 0 }}>
-            <Card elevation={0} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 0 }}>
+            <Card elevation={0} sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 0 }}>
               <CardContent sx={{ p: 2.5 }}>
                   <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e293b', mb: 0.3 }}>
                     描述您的目标或需求
@@ -657,7 +656,7 @@ export const AIGenerationPage: React.FC = () => {
 
             {/* Generated Tasks */}
             {generatedTasks.length > 0 && (
-              <Card elevation={0} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 1.5 }}>
+              <Card elevation={0} sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 1.5 }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1, fontWeight: 600 }}>
                     <CheckCircle size={20} color="#7C3AED" />
@@ -708,7 +707,7 @@ export const AIGenerationPage: React.FC = () => {
           {/* Right Column - ~42% */}
           <Box sx={{ width: { xs: '100%', lg: '42%' }, minWidth: 0 }}>
             {/* Output Features Card */}
-            <Card elevation={0} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 1.5 }}>
+            <Card elevation={0} sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9', mb: 1.5 }}>
               <CardContent sx={{ p: 2.5 }}>
                 <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e293b', mb: 1.5 }}>
                   AI 将为你输出
@@ -745,19 +744,12 @@ export const AIGenerationPage: React.FC = () => {
             </Card>
 
             {/* Preview Card */}
-            <Card elevation={0} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9' }}>
+            <Card elevation={0} sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: 1, borderColor: '#f1f5f9' }}>
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>
                     {isProcessing ? 'AI 规划中...' : '规划结果预览'}
-                  </Typography>
-                  {!isProcessing && (
-                  <Box sx={{ px: 1.2, py: 0.2, borderRadius: 1, bgcolor: '#f5f3ff', border: 1, borderColor: '#ede9fe' }}>
-                    <Typography sx={{ fontSize: '0.65rem', color: '#7C3AED', fontWeight: 500 }}>
-                      示例预览
-                    </Typography>
-                  </Box>
-                  )}
+                </Typography>
                 </Box>
 
                 {isProcessing ? (

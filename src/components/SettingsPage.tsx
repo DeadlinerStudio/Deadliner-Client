@@ -6,8 +6,6 @@ import {
   CardContent,
   Grid,
   Divider,
-  AppBar,
-  Toolbar,
   Paper,
   Stack,
   Chip,
@@ -31,7 +29,6 @@ import {
   Info,
   Github,
   Heart,
-  Zap,
 } from 'lucide-react';
 import { themeMetadata, themePalettes } from '../theme/themes';
 import { useSettings } from '../hooks/useStorage';
@@ -137,33 +134,19 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Toolbar sx={{ px: { xs: 2, md: 4 }, py: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: 3,
-                bgcolor: theme => theme.palette.mode === 'dark' ? 'rgba(168,85,247,0.2)' : 'rgba(168,85,247,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Zap size={24} style={{ color: '#a855f7' }} />
-            </Box>
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
-                设置
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                个性化你的 Deadliner 体验
-              </Typography>
-            </Box>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <Box sx={{
+        px: { xs: 2, md: 4 },
+        py: 3,
+        borderBottom: 1,
+        borderColor: 'divider',
+      }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+          设置
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          个性化你的 Deadliner 体验
+        </Typography>
+      </Box>
 
       {/* Settings Content */}
       <Box sx={{ flex: 1, overflow: 'auto', px: { xs: 2, md: 4 }, py: 3 }}>
@@ -490,19 +473,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 {/* App Info */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
                   <Box
+                    component="img"
+                    src="./icon.png"
+                    alt="Deadliner"
                     sx={{
                       width: 64,
                       height: 64,
-                      borderRadius: 4,
-                      background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: 3,
+                      borderRadius: 0,
+                      objectFit: 'contain',
                     }}
-                  >
-                    <Typography sx={{ fontSize: '2rem' }}>⚡</Typography>
-                  </Box>
+                  />
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
                       Deadliner

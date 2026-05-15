@@ -25,7 +25,7 @@ const sharedThemeOptions: ThemeOptions = {
     body2: { fontSize: '0.875rem', lineHeight: 1.43 },
     button: { textTransform: 'none', fontWeight: 500 },
   },
-  shape: { borderRadius: 16 },
+  shape: { borderRadius: 0 },
   components: {
     MuiButton: {
       styleOverrides: {
@@ -46,7 +46,7 @@ const sharedThemeOptions: ThemeOptions = {
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
+          borderRadius: 0,
           boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
           transition: 'box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out',
           '&:hover': {
